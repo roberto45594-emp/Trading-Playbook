@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Trading Dashboard — Roberto</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:       #0a0e1a;
+    --surface:  #111827;
+    --card:     #161d2e;
+    --border:   #1f2d45;
+    --accent:   #00d4ff;
+    --green:    #00e676;
+    --red:      #ff4d6d;
+    --yellow:   #ffd600;
+    --text:     #e8eaf0;
+    --muted:    #6b7a99;
+    --font:     'Space Grotesk', sans-serif;
+    --mono:     'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), #0066ff);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .logo-text {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  .logo-sub {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 0.5px;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .upload-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity 0.2s;
+  }
+  .upload-btn:hover { opacity: 0.85; }
+  #fileInput { display: none; }
+
+  /* ── MAIN ── */
+  main { padding: 20px; max-width: 900px; margin: 0 auto; }
+
+  /* ── ESTADO VACÍO ── */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    gap: 16px;
+  }
+  .empty-icon {
+    width: 64px; height: 64px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .empty-state h2 {
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .empty-state p {
+    font-size: 14px;
+    color: var(--muted);
+    max-width: 300px;
+    line-height: 1.6;
+  }
+  .empty-upload-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+  }
+  .empty-upload-btn:hover { opacity: 0.85; }
+
+  /* ── KPIS ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .kpi-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    font-family: var(--mono);
+    margin-bottom: 6px;
+  }
+  .kpi-value {
+    font-size: 24px;
+    font-weight: 700;
+    font-family: var(--mono);
+    letter-spacing: -1px;
+  }
+  .kpi-value.green { color: var(--green); }
+  .kpi-value.red   { color: var(--red); }
+  .kpi-value.blue  { color: var(--accent); }
+  .kpi-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── DIAGNÓSTICO ── */
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: var(--mono);
+    margin-bottom: 12px;
+  }
+  .diag-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .diag-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .diag-severity {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .sev-critical { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .sev-warning  { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+  .sev-info     { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+  .diag-title {
+    font-size: 14px;
+    font-weight: 600;
+    flex: 1;
+  }
+  .diag-count {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--border);
+    padding: 2px 8px;
+    border-radius: 20px;
+    color: var(--muted);
+  }
+  .diag-body {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    padding-left: 18px;
+  }
+  .diag-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .diag-stat span { color: var(--text); font-weight: 500; }
+
+  /* ── TABLA ── */
+  .table-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  th {
+    background: var(--surface);
+    padding: 10px 12px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .td-profit { font-weight: 600; }
+  .td-profit.pos { color: var(--green); }
+  .td-profit.neg { color: var(--red); }
+  .td-tag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .tag-buy  { background: rgba(0,230,118,0.12); color: var(--green); }
+  .tag-sell { background: rgba(255,77,109,0.12); color: var(--red); }
+  .tag-flag { background: rgba(255,214,0,0.12); color: var(--yellow); }
+
+  /* ── CHART EQUIDAD ── */
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  canvas { width: 100% !important; max-height: 180px; }
+
+  /* ── PATRONES ── */
+  .pattern-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .pattern-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .pattern-name {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .pattern-val {
+    font-size: 20px;
+    font-weight: 700;
+    font-family: var(--mono);
+  }
+
+  /* ── HIDDEN ── */
+  .hidden { display: none !important; }
+
+  /* ── SCROLL ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">📈</div>
+    <div>
+      <div class="logo-text">TradingDash</div>
+      <div class="logo-sub">Exness · Indices</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <label class="upload-btn" for="fileInput">
+      ⬆ CSV
+    </label>
+    <input type="file" id="fileInput" accept=".csv">
+  </div>
+</header>
+
+<main id="mainContent">
+
+  <!-- EMPTY STATE -->
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">📊</div>
+    <h2>Sin datos aún</h2>
+    <p>Exporta tu historial de Exness como CSV y súbelo para ver tu diagnóstico completo.</p>
+    <label class="empty-upload-btn" for="fileInput">Subir CSV de Exness</label>
+  </div>
+
+  <!-- DASHBOARD (oculto hasta que haya datos) -->
+  <div id="dashboard" class="hidden">
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">P&L Total</div>
+        <div class="kpi-value" id="kpiPnl">—</div>
+        <div class="kpi-sub" id="kpiPnlSub">—</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Win Rate</div>
+        <div class="kpi-value blue" id="kpiWr">—</div>
+        <div class="kpi-sub" id="kpiWrSub">—</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Profit Factor</div>
+        <div class="kpi-value" id="kpiPf">—</div>
+        <div class="kpi-sub">Ganados / Perdidos</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Operaciones</div>
+        <div class="kpi-value blue" id="kpiTrades">—</div>
+        <div class="kpi-sub" id="kpiTradesSub">—</div>
+      </div>
+    </div>
+
+    <!-- CURVA DE EQUIDAD -->
+    <div class="chart-card">
+      <div class="section-title">Curva de Equidad</div>
+      <canvas id="equityChart"></canvas>
+    </div>
+
+    <!-- DIAGNÓSTICO -->
+    <div class="section-title">Diagnóstico de Patrones</div>
+
+    <div class="diag-card" id="diagSL">
+      <div class="diag-header">
+        <div class="diag-severity sev-critical"></div>
+        <div class="diag-title">Stop-Loss Inconsistente</div>
+        <div class="diag-count" id="diagSLCount">—</div>
+      </div>
+      <div class="diag-body" id="diagSLBody">Analizando...</div>
+    </div>
+
+    <div class="diag-card" id="diagSize">
+      <div class="diag-header">
+        <div class="diag-severity sev-warning"></div>
+        <div class="diag-title">Aumento de Tamaño tras Pérdidas</div>
+        <div class="diag-count" id="diagSizeCount">—</div>
+      </div>
+      <div class="diag-body" id="diagSizeBody">Analizando...</div>
+    </div>
+
+    <div class="diag-card" id="diagRevenge">
+      <div class="diag-header">
+        <div class="diag-severity sev-warning"></div>
+        <div class="diag-title">Operar tras Racha Perdedora</div>
+        <div class="diag-count" id="diagRevengeCount">—</div>
+      </div>
+      <div class="diag-body" id="diagRevengeBody">Analizando...</div>
+    </div>
+
+    <!-- PATRONES ADICIONALES -->
+    <div class="pattern-grid">
+      <div class="pattern-card">
+        <div class="pattern-name">Mejor día</div>
+        <div class="pattern-val green" id="bestDay">—</div>
+      </div>
+      <div class="pattern-card">
+        <div class="pattern-name">Peor día</div>
+        <div class="pattern-val red" id="worstDay">—</div>
+      </div>
+      <div class="pattern-card">
+        <div class="pattern-name">Mayor ganancia</div>
+        <div class="pattern-val green" id="bigWin">—</div>
+      </div>
+      <div class="pattern-card">
+        <div class="pattern-name">Mayor pérdida</div>
+        <div class="pattern-val red" id="bigLoss">—</div>
+      </div>
+    </div>
+
+    <!-- ÚLTIMAS OPERACIONES -->
+    <div class="section-title">Últimas Operaciones</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Símbolo</th>
+            <th>Dir</th>
+            <th>Lotes</th>
+            <th>P&L</th>
+            <th>Flag</th>
+          </tr>
+        </thead>
+        <tbody id="tradeTable"></tbody>
+      </table>
+    </div>
+
+  </div><!-- /dashboard -->
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ─────────────────────────────────────────
+// ESTADO
+// ─────────────────────────────────────────
+let trades = [];
+let equityChart = null;
+
+// ─────────────────────────────────────────
+// CSV UPLOAD
+// ─────────────────────────────────────────
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    parseCSV(ev.target.result);
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return;
+
+  // Detectar separador
+  const sep = lines[0].includes(';') ? ';' : ',';
+  const headers = lines[0].split(sep).map(h => h.trim().replace(/"/g,'').toLowerCase());
+
+  trades = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(sep).map(c => c.trim().replace(/"/g,''));
+    if (cols.length < 3) continue;
+    const row = {};
+    headers.forEach((h, idx) => { row[h] = cols[idx] || ''; });
+    trades.push(row);
+  }
+
+  if (trades.length > 0) {
+    processTrades();
+    showDashboard();
+  }
+}
+
+function detectField(names) {
+  const keys = Object.keys(trades[0] || {});
+  for (const n of names) {
+    const found = keys.find(k => k.includes(n));
+    if (found) return found;
+  }
+  return null;
+}
+
+// ─────────────────────────────────────────
+// PROCESAR DATOS
+// ─────────────────────────────────────────
+function processTrades() {
+  // Detectar columnas flexiblemente
+  const fProfit = detectField(['profit','ganancia','p&l','pnl','result']) || 'profit';
+  const fLots   = detectField(['lots','lotes','volume','vol','size']) || 'lots';
+  const fType   = detectField(['type','tipo','direction','dir','side']) || 'type';
+  const fSym    = detectField(['symbol','simbolo','instrument','pair']) || 'symbol';
+  const fDate   = detectField(['close','fecha','date','time','closedate']) || 'close time';
+  const fSL     = detectField(['sl','stop','stoploss','stop loss']) || 'sl';
+
+  // Parsear trades
+  const parsed = trades.map(t => ({
+    date:   t[fDate] || '',
+    symbol: t[fSym] || 'N/A',
+    type:   (t[fType] || '').toLowerCase(),
+    lots:   parseFloat(t[fLots]) || 0,
+    profit: parseFloat(t[fProfit]) || 0,
+    sl:     parseFloat(t[fSL]) || 0,
+  })).filter(t => !isNaN(t.profit));
+
+  if (parsed.length === 0) {
+    alert('No se pudo leer el CSV. Verifica que tenga columnas de profit/lots.');
+    return;
+  }
+
+  // ── KPIs ──
+  const totalPnl = parsed.reduce((s, t) => s + t.profit, 0);
+  const winners  = parsed.filter(t => t.profit > 0);
+  const losers   = parsed.filter(t => t.profit < 0);
+  const winRate  = parsed.length > 0 ? (winners.length / parsed.length * 100) : 0;
+  const grossW   = winners.reduce((s,t) => s + t.profit, 0);
+  const grossL   = Math.abs(losers.reduce((s,t) => s + t.profit, 0));
+  const pf       = grossL > 0 ? (grossW / grossL) : grossW > 0 ? Infinity : 0;
+
+  document.getElementById('kpiPnl').textContent = fmt(totalPnl);
+  document.getElementById('kpiPnl').className = 'kpi-value ' + (totalPnl >= 0 ? 'green' : 'red');
+  document.getElementById('kpiPnlSub').textContent = `${winners.length}W / ${losers.length}L`;
+  document.getElementById('kpiWr').textContent = winRate.toFixed(1) + '%';
+  document.getElementById('kpiWrSub').textContent = `${parsed.length} operaciones`;
+  document.getElementById('kpiPf').textContent = isFinite(pf) ? pf.toFixed(2) : '∞';
+  document.getElementById('kpiPf').className = 'kpi-value ' + (pf >= 1.5 ? 'green' : pf >= 1 ? 'blue' : 'red');
+  document.getElementById('kpiTrades').textContent = parsed.length;
+  document.getElementById('kpiTradesSub').textContent = 'total registradas';
+
+  // ── CURVA EQUIDAD ──
+  let eq = 0;
+  const eqData = parsed.map(t => { eq += t.profit; return eq; });
+  renderEquityChart(eqData);
+
+  // ── DIAGNÓSTICO ──
+
+  // 1. SL Inconsistente (SL = 0 en perdedores)
+  const noSL = losers.filter(t => t.sl === 0 || isNaN(t.sl));
+  document.getElementById('diagSLCount').textContent = noSL.length + ' casos';
+  if (noSL.length > 0) {
+    const pct = (noSL.length / losers.length * 100).toFixed(0);
+    document.getElementById('diagSLBody').innerHTML =
+      `<strong style="color:var(--red)">${pct}%</strong> de tus operaciones perdedoras no tienen SL registrado. Esto expone la cuenta a pérdidas sin límite predefinido.`;
+  } else {
+    document.getElementById('diagSLBody').innerHTML =
+      'No se detectaron operaciones perdedoras sin SL registrado. ✓';
+    document.getElementById('diagSL').querySelector('.diag-severity').className = 'diag-severity sev-info';
+  }
+
+  // 2. Aumento de tamaño tras pérdidas
+  let sizeAfterLoss = 0;
+  for (let i = 1; i < parsed.length; i++) {
+    if (parsed[i-1].profit < 0 && parsed[i].lots > parsed[i-1].lots * 1.1) {
+      sizeAfterLoss++;
+    }
+  }
+  document.getElementById('diagSizeCount').textContent = sizeAfterLoss + ' casos';
+  if (sizeAfterLoss > 0) {
+    document.getElementById('diagSizeBody').innerHTML =
+      `Se detectaron <strong style="color:var(--yellow)">${sizeAfterLoss} ocasiones</strong> donde aumentaste el lote después de una pérdida. Esto amplifica el riesgo en momentos de drawdown.`;
+  } else {
+    document.getElementById('diagSizeBody').innerHTML =
+      'No se detectaron aumentos de tamaño tras pérdidas. ✓';
+    document.getElementById('diagSize').querySelector('.diag-severity').className = 'diag-severity sev-info';
+  }
+
+  // 3. Operar tras racha perdedora (3+ pérdidas seguidas)
+  let revengeCount = 0;
+  let streak = 0;
+  for (let i = 0; i < parsed.length; i++) {
+    if (parsed[i].profit < 0) {
+      streak++;
+    } else {
+      if (streak >= 3) revengeCount++;
+      streak = 0;
+    }
+  }
+  document.getElementById('diagRevengeCount').textContent = revengeCount + ' rachas';
+  if (revengeCount > 0) {
+    document.getElementById('diagRevengeBody').innerHTML =
+      `Detectadas <strong style="color:var(--yellow)">${revengeCount} rachas</strong> de 3+ pérdidas consecutivas sin parar. Considera una regla de pausa automática al tercer stop.`;
+  } else {
+    document.getElementById('diagRevengeBody').innerHTML =
+      'No se detectaron rachas de 3+ pérdidas consecutivas. ✓';
+    document.getElementById('diagRevenge').querySelector('.diag-severity').className = 'diag-severity sev-info';
+  }
+
+  // ── PATTERNS ──
+  const byDay = {};
+  parsed.forEach(t => {
+    const d = t.date.split(' ')[0] || t.date.substring(0,10) || 'N/A';
+    byDay[d] = (byDay[d] || 0) + t.profit;
+  });
+  const days = Object.entries(byDay).sort((a,b) => b[1]-a[1]);
+  if (days.length > 0) {
+    document.getElementById('bestDay').textContent = fmt(days[0][1]);
+    document.getElementById('worstDay').textContent = fmt(days[days.length-1][1]);
+  }
+  const sortedPnl = [...parsed].sort((a,b) => b.profit - a.profit);
+  document.getElementById('bigWin').textContent  = fmt(sortedPnl[0]?.profit || 0);
+  document.getElementById('bigLoss').textContent = fmt(sortedPnl[sortedPnl.length-1]?.profit || 0);
+
+  // ── TABLA ──
+  const tbody = document.getElementById('tradeTable');
+  tbody.innerHTML = '';
+  const recent = [...parsed].slice(-30).reverse();
+  recent.forEach(t => {
+    // Detectar flags
+    const flags = [];
+    if (t.sl === 0) flags.push('<span class="td-tag tag-flag">Sin SL</span>');
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${(t.date || '').substring(0,10)}</td>
+      <td>${t.symbol}</td>
+      <td><span class="td-tag ${t.type.includes('buy') ? 'tag-buy' : 'tag-sell'}">${t.type.includes('buy') ? 'BUY' : 'SELL'}</span></td>
+      <td>${t.lots.toFixed(2)}</td>
+      <td class="td-profit ${t.profit >= 0 ? 'pos' : 'neg'}">${fmt(t.profit)}</td>
+      <td>${flags.join(' ')}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// ─────────────────────────────────────────
+// CHART
+// ─────────────────────────────────────────
+function renderEquityChart(data) {
+  const ctx = document.getElementById('equityChart').getContext('2d');
+  if (equityChart) equityChart.destroy();
+
+  const isProfit = data[data.length-1] >= 0;
+  const color = isProfit ? '#00e676' : '#ff4d6d';
+
+  equityChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map((_, i) => i + 1),
+      datasets: [{
+        data: data,
+        borderColor: color,
+        borderWidth: 2,
+        fill: true,
+        backgroundColor: `${color}18`,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { display: false },
+        y: {
+          grid: { color: '#1f2d45' },
+          ticks: {
+            color: '#6b7a99',
+            font: { family: 'JetBrains Mono', size: 10 },
+            callback: v => '$' + v.toFixed(0)
+          }
+        }
+      }
+    }
+  });
+  document.getElementById('equityChart').style.height = '160px';
+}
+
+// ─────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────
+function fmt(n) {
+  const abs = Math.abs(n);
+  const str = abs >= 1000
+    ? '$' + (abs/1000).toFixed(1) + 'k'
+    : '$' + abs.toFixed(2);
+  return (n >= 0 ? '+' : '-') + str;
+}
+
+function showDashboard() {
+  document.getElementById('emptyState').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
