@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor VIX con Gráfico en Vivo</title>
+    <style>
+        :root {
+            --bg: #070a12;
+            --bg2: #0a0e1a;
+            --bg3: #0f1420;
+            --bg4: #1a1f2e;
+            --border: #1e2a3a;
+            --text: #e2e8f0;
+            --text2: #94a3b8;
+            --accent2: #818cf8;
+            --green: #22c55e;
+            --red: #ef4444;
+            --yellow: #f59e0b;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 550px;
+            width: 100%;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .header {
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .subtitle {
+            font-size: 11px;
+            color: var(--text2);
+            margin-top: 4px;
+        }
+
+        /* Contenedor del gráfico en vivo */
+        .widget-container {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .vix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .vix-table th {
+            color: var(--accent2);
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid var(--border);
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .vix-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--bg4);
+            vertical-align: top;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: center;
+            width: 70px;
+        }
+
+        .badge.green { background: rgba(34, 197, 94, 0.15); color: var(--green); }
+        .badge.yellow { background: rgba(245, 158, 11, 0.15); color: var(--yellow); }
+        .badge.red { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+
+        .desc { color: var(--text2); line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="title">📊 Filtro Operativo: VIX en Tiempo Real</div>
+        <div class="subtitle">Comprobación automática de volatilidad antes de iniciar sesión</div>
+    </div>
+
+    <div class="widget-container">
+        <div class="tradingview-widget-container" style="height:100%;width:100%">
+          <div id="tradingview_vix" style="height:100%;width:100%"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+          <script type="text/javascript">
+          new TradingView.MediumWidget({
+            "symbols": [["CBOE:VIX|VIX"]],
+            "chartOnly": false,
+            "width": "100%",
+            "height": "100%",
+            "locale": "es",
+            "colorTheme": "dark",
+            "gridLineColor": "rgba(30, 42, 58, 0.3)",
+            "trendLineColor": "#4f46e5",
+            "fontColor": "#94a3b8",
+            "underLineColor": "rgba(79, 70, 229, 0.15)",
+            "underLineBottomColor": "rgba(79, 70, 229, 0.0)",
+            "isTransparent": true,
+            "autosize": true
+          });
+          </script>
+        </div>
+        </div>
+
+    <table class="vix-table">
+        <thead>
+            <tr>
+                <th>Rango</th>
+                <th>Estado e Impacto Operativo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="badge green">&lt; 15</span></td>
+                <td class="desc"><strong>Calma / Euforia:</strong> Movimientos fluidos. Ideal para retrocesos limpios del <strong>Setup A</strong>.</td>
+            </tr>
+            <tr>
+                <td><span class="badge yellow">15 - 25</span></td>
+                <td class="desc"><strong>Normal:</strong> Volatilidad estándar. Esperar pacientemente la vela de confirmación.</td>
+            </tr>
+            <tr>
+                <td><span class="badge red">&gt; 25</span></td>
+                <td class="desc"><strong>Pánico / Riesgo:</strong> Movimientos erráticos y latigazos. Si entras antes de tiempo, te barrerá.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
