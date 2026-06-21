@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor VIX con Gráfico en Vivo</title>
+    <title>Monitor VIX con Ticker en Vivo</title>
     <style>
         :root {
             --bg: #070a12;
@@ -58,11 +58,11 @@
             margin-top: 4px;
         }
 
-        /* Contenedor optimizado para el gráfico avanzado */
+        /* Contenedor ajustado a la altura nativa del Ticker Widget */
         .widget-container {
             width: 100%;
-            height: 260px;
-            margin-bottom: 16px;
+            height: 126px;
+            margin-bottom: 20px;
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--border);
@@ -161,24 +161,16 @@
 
     <div class="widget-container">
         <div class="tradingview-widget-container" style="height:100%;width:100%">
-            <div id="tradingview_advanced_chart" style="height:100%;width:100%"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-            <script type="text/javascript">
-            new TradingView.widget({
+            <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-single-quote.js" async>
+            {
+                "symbol": "CBOE:VIX",
                 "width": "100%",
                 "height": "100%",
-                "symbol": "CBOE:VIX",
-                "interval": "D",
-                "timezone": "Etc/UTC",
-                "theme": "dark",
-                "style": "2", /* Gráfico de línea para visualización rápida y limpia */
-                "locale": "es",
-                "enable_publishing": false,
-                "hide_top_toolbar": true,
-                "hide_legend": false,
-                "save_image": false,
-                "container_id": "tradingview_advanced_chart"
-            });
+                "colorTheme": "dark",
+                "isTransparent": true,
+                "locale": "es"
+            }
             </script>
         </div>
     </div>
