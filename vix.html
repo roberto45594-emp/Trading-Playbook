@@ -11,6 +11,7 @@
             --bg3: #0f1420;
             --bg4: #1a1f2e;
             --border: #1e2a3a;
+            --border2: #374151;
             --text: #e2e8f0;
             --text2: #94a3b8;
             --accent2: #818cf8;
@@ -57,20 +58,21 @@
             margin-top: 4px;
         }
 
-        /* Contenedor del gráfico en vivo */
         .widget-container {
             width: 100%;
-            height: 200px;
+            height: 220px;
             margin-bottom: 16px;
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid var(--border);
+            background: #131722;
         }
 
         .vix-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 12px;
+            margin-bottom: 20px;
         }
 
         .vix-table th {
@@ -103,6 +105,50 @@
         .badge.red { background: rgba(239, 68, 68, 0.15); color: var(--red); }
 
         .desc { color: var(--text2); line-height: 1.4; }
+
+        /* Contenedor y diseño de los nuevos botones de opciones */
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+            border-top: 1px solid var(--border);
+            padding-top: 16px;
+        }
+
+        .links-title {
+            font-size: 11px;
+            color: var(--text2);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .vix-link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg4);
+            border: 1px solid var(--border2);
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .vix-link-btn:hover {
+            background: var(--border);
+            border-color: var(--accent2);
+        }
+
+        .vix-link-btn .arrow {
+            color: var(--accent2);
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -114,28 +160,23 @@
     </div>
 
     <div class="widget-container">
-        <div class="tradingview-widget-container" style="height:100%;width:100%">
-          <div id="tradingview_vix" style="height:100%;width:100%"></div>
-          <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-          <script type="text/javascript">
-          new TradingView.MediumWidget({
-            "symbols": [["CBOE:VIX|VIX"]],
-            "chartOnly": false,
-            "width": "100%",
-            "height": "100%",
-            "locale": "es",
-            "colorTheme": "dark",
-            "gridLineColor": "rgba(30, 42, 58, 0.3)",
-            "trendLineColor": "#4f46e5",
-            "fontColor": "#94a3b8",
-            "underLineColor": "rgba(79, 70, 229, 0.15)",
-            "underLineBottomColor": "rgba(79, 70, 229, 0.0)",
-            "isTransparent": true,
-            "autosize": true
-          });
-          </script>
+        <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
+            <div class="tradingview-widget-container__widget" style="height: 100%; width: 100%;"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+            {
+                "symbol": "CBOE:VIX",
+                "width": "100%",
+                "height": "100%",
+                "locale": "es",
+                "dateRange": "1D",
+                "colorTheme": "dark",
+                "isTransparent": true,
+                "autosize": true,
+                "largeChartUrl": ""
+            }
+            </script>
         </div>
-        </div>
+    </div>
 
     <table class="vix-table">
         <thead>
@@ -159,6 +200,20 @@
             </tr>
         </tbody>
     </table>
+
+    <div class="links-container">
+        <div class="links-title">🔗 Enlaces directos (Opciones alternativas)</div>
+        
+        <a href="https://es.tradingview.com/symbols/CBOE-VIX/" target="_blank" class="vix-link-btn">
+            <span>📈 Abrir VIX en TradingView</span>
+            <span class="arrow">↗</span>
+        </a>
+
+        <a href="https://es.investing.com/indices/volatility-s-p-500" target="_blank" class="vix-link-btn">
+            <span>📰 Abrir VIX en Investing.com</span>
+            <span class="arrow">↗</span>
+        </a>
+    </div>
 </div>
 
 </body>
