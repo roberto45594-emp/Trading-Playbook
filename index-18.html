@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#070a12"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Trading PB"/>
+<title>Trading Playbook</title>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVHJhZGluZyBQbGF5Ym9vayIsInNob3J0X25hbWUiOiJUcmFkaW5nIFBCIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwNzBhMTIiLCJ0aGVtZV9jb2xvciI6IiMwNzBhMTIiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScyMCcgZmlsbD0nIzRmNDZlNSclMkYlM0UlM0N0ZXh0IHk9Jy43ZW0nIGZvbnQtc2l6ZT0nNzAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIHg9JzUwJyUzRVAlM0MlMkZ0ZXh0JTNFJTNDJTJGZ3ZnJTNFIiwic2l6ZXMiOiIxOTJ4MTkyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV19"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#070a12;--bg2:#0a0e1a;--bg3:#0f1420;--bg4:#1a1f2e;
+  --border:#1e2a3a;--border2:#374151;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#6b7280;--text4:#4b5563;
+  --accent:#4f46e5;--accent2:#818cf8;
+  --green:#22c55e;--red:#ef4444;--yellow:#f59e0b;
+  --safe-top:env(safe-area-inset-top);
+  --safe-bot:env(safe-area-inset-bottom);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100%;height:100dvh}
+
+/* ── HEADER ── */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:calc(12px + var(--safe-top)) 16px 12px;display:flex;justify-content:space-between;align-items:flex-end;flex-shrink:0}
+.hdr-left .eyebrow{color:var(--accent2);font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
+.hdr-left .title{color:var(--text);font-size:17px;font-weight:800}
+.hdr-right{text-align:right}
+.hdr-right .real{color:var(--red);font-size:11px;font-weight:700}
+.hdr-right .demo{color:var(--text3);font-size:10px;margin-top:1px}
+
+/* ── SCROLL BODY ── */
+.body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:16px 16px calc(16px + var(--safe-bot))}
+
+/* ── BOTTOM NAV ── */
+.nav{background:var(--bg2);border-top:1px solid var(--border);display:flex;flex-shrink:0;padding-bottom:var(--safe-bot)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 2px;border:none;background:transparent;cursor:pointer;gap:2px;transition:opacity .15s}
+.nav-btn .ico{font-size:18px}
+.nav-btn .lbl{font-size:8px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--text3)}
+.nav-btn.active .lbl{color:var(--accent2)}
+.nav-btn.active .ico{filter:drop-shadow(0 0 4px #818cf8)}
+
+/* ── CARDS ── */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.card-title{color:var(--text);font-size:14px;font-weight:700;margin-bottom:4px}
+.card-sub{color:var(--text3);font-size:11px;margin-bottom:12px}
+
+/* ── PILLS GRID ── */
+.pills{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.pill{background:var(--bg4);border-radius:8px;padding:10px 10px 8px;border-left:3px solid var(--accent)}
+.pill .p-label{color:var(--text3);font-size:9px;text-transform:uppercase;letter-spacing:.8px}
+.pill .p-val{font-size:16px;font-weight:800;margin-top:3px}
+
+/* ── SEGMENT CONTROL ── */
+.seg{display:flex;background:var(--bg4);border-radius:8px;padding:3px;gap:3px;margin-bottom:12px}
+.seg-btn{flex:1;padding:6px 0;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;background:transparent;color:var(--text3);transition:all .15s}
+.seg-btn.active{background:var(--accent);color:#fff}
+
+/* ── ALERT BOXES ── */
+.alert{border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:12px;line-height:1.5;border-left:3px solid}
+.alert.danger{background:#2d1515;border-color:var(--red);color:#fca5a5}
+.alert.warning{background:#2d2010;border-color:var(--yellow);color:#fcd34d}
+.alert.success{background:#0f2d1a;border-color:var(--green);color:#86efac}
+.alert.info{background:#0f1f35;border-color:#60a5fa;color:#93c5fd}
+
+/* ── MINI CHART ── */
+.mini-chart{display:flex;align-items:flex-end;gap:3px;height:60px;margin:8px 0}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.bar{width:100%;border-radius:3px 3px 0 0;min-height:2px;transition:height .3s}
+.bar-lbl{font-size:7px;color:var(--text4);writing-mode:vertical-lr;text-orientation:mixed;transform:rotate(180deg);max-height:24px;overflow:hidden}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{color:var(--text4);text-align:right;padding:4px 6px;border-bottom:1px solid var(--border);font-weight:600;font-size:10px}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:6px 6px;border-bottom:1px solid var(--bg);text-align:right;color:var(--text2)}
+.tbl td:first-child{text-align:left;color:var(--text)}
+
+/* ── SL BAR ── */
+.sl-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.sl-bar-wrap .sl-label{font-size:10px;color:var(--text3);margin-bottom:4px}
+.sl-bar-bg{background:var(--bg4);border-radius:4px;height:6px;margin-bottom:3px}
+.sl-bar-fill{height:6px;border-radius:4px}
+.sl-stat{font-size:12px;font-weight:700}
+
+/* ── PLAYBOOK ── */
+.pb-section{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+.pb-sec-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.pb-sec-title{color:var(--text);font-size:13px;font-weight:700}
+.pb-sec-sub{color:var(--text4);font-size:10px;margin-top:2px}
+.pb-edit-btn{border:1px solid var(--border2);background:var(--bg4);color:var(--text3);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;white-space:nowrap}
+.pb-save-btn{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer}
+.pb-content p{color:var(--text2);font-size:12px;line-height:1.6;margin-bottom:3px}
+.pb-content .pbh{color:var(--accent2);font-size:12px;font-weight:700;margin-top:10px;margin-bottom:3px}
+.pb-content .pbi{color:var(--text2);font-size:12px;padding-left:10px}
+.pb-textarea{width:100%;min-height:180px;background:var(--bg);color:var(--text2);border:1px solid var(--border2);border-radius:8px;padding:10px;font-size:12px;font-family:monospace;resize:vertical;line-height:1.5}
+
+/* ── SMB ── */
+.smb-step{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:flex-start}
+.smb-num{color:var(--accent2);font-size:22px;font-weight:900;line-height:1;min-width:28px}
+.smb-info .smb-t{color:var(--text);font-size:13px;font-weight:700}
+.smb-info .smb-d{color:var(--text3);font-size:11px;margin-top:1px}
+.why-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:6px}
+.why-arrow{color:var(--accent2);font-size:14px;min-width:14px;margin-top:2px}
+.why-input{flex:1;background:var(--bg);color:var(--text2);border:1px solid var(--border2);border-radius:6px;padding:7px 9px;font-size:12px}
+.why-count-btns{display:flex;gap:4px;margin-bottom:8px}
+.wc-btn{background:var(--bg4);color:var(--text3);border:none;border-radius:5px;padding:4px 10px;font-size:11px;cursor:pointer}
+.wc-btn.active{background:var(--accent);color:#fff}
+.report-item{background:var(--bg);border-radius:8px;padding:10px;margin-bottom:6px;border-left:3px solid}
+.victory-row{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--bg);border-radius:6px;margin-bottom:4px}
+.vict-txt{color:#86efac;font-size:12px}
+.vict-date{color:var(--text4);font-size:10px}
+.add-row{display:flex;gap:6px;margin-bottom:10px}
+.add-input{flex:1;background:var(--bg);color:var(--text2);border:1px solid var(--border2);border-radius:8px;padding:8px 10px;font-size:12px}
+.add-btn{background:var(--green);color:#000;border:none;border-radius:8px;padding:8px 14px;font-size:16px;font-weight:800;cursor:pointer}
+
+/* ── LINKS ── */
+.link-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.link-icon{font-size:18px;flex-shrink:0}
+.link-info{flex:1;min-width:0}
+.link-name{color:var(--text);font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;display:block}
+.link-name:hover{color:var(--accent2)}
+.link-url{color:var(--text4);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.link-del{background:transparent;border:none;cursor:pointer;font-size:16px;padding:4px;opacity:.5;transition:opacity .15s;flex-shrink:0}
+.link-del:hover{opacity:1}
+.links-form{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px}
+.links-form-title{color:var(--text);font-size:13px;font-weight:700;margin-bottom:10px}
+.links-field{margin-bottom:8px}
+.links-field label{display:block;color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.links-add-row{display:flex;gap:8px;margin-top:10px}
+
+
+.diag-score{background:var(--bg3);border:1px solid var(--accent);border-radius:12px;padding:16px;text-align:center;margin-bottom:14px}
+.diag-score .big-num{font-size:52px;font-weight:900;line-height:1}
+.diag-area{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.diag-area-title{color:var(--text);font-size:13px;font-weight:700;margin-bottom:2px}
+.diag-target{color:var(--text4);font-size:10px;margin-bottom:8px}
+.diag-bars{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.diag-bar-wrap .dlabel{font-size:10px;color:var(--text3);margin-bottom:3px}
+.diag-bar-bg{background:var(--bg4);border-radius:3px;height:5px;margin-bottom:3px}
+.diag-bar-fill{height:5px;border-radius:3px}
+.diag-val{font-size:12px;color:var(--text2)}
+.diag-insight{background:var(--bg);border-radius:6px;padding:8px 10px;border-left:3px solid var(--border2);font-size:11px;color:var(--text3);line-height:1.5}
+
+/* ── CSV UPLOAD ── */
+.upload-zone{border:2px dashed var(--border2);border-radius:12px;padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:12px}
+.upload-zone.drag{border-color:var(--accent)}
+.upload-zone .uz-icon{font-size:32px;margin-bottom:8px}
+.upload-zone .uz-title{color:var(--text);font-size:14px;font-weight:700;margin-bottom:4px}
+.upload-zone .uz-sub{color:var(--text3);font-size:11px}
+#file-input-real,#file-input-demo{display:none}
+
+.btn-primary{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;width:100%}
+.btn-secondary{background:var(--bg4);color:var(--text2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.badge.green{background:#0f2d1a;color:var(--green)}
+.badge.red{background:#2d1515;color:var(--red)}
+.badge.yellow{background:#2d2010;color:var(--yellow)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="eyebrow">Live In Trading</div>
+      <div class="title">Trading Playbook</div>
+    </div>
+    <div class="hdr-right">
+      <div class="real" id="hdr-real">Real: -$124.170</div>
+      <div class="demo" id="hdr-demo">Demo: -$1.574</div>
+    </div>
+  </div>
+
+  <div class="body" id="main-body">
+    <!-- content injected by JS -->
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showTab('playbook')" id="nb-playbook">
+      <span class="ico">📒</span><span class="lbl">Playbook</span>
+    </button>
+    <button class="nav-btn" onclick="showTab('metricas')" id="nb-metricas">
+      <span class="ico">📊</span><span class="lbl">Métricas</span>
+    </button>
+    <button class="nav-btn" onclick="showTab('diagnostico')" id="nb-diagnostico">
+      <span class="ico">🔍</span><span class="lbl">Diagnóst.</span>
+    </button>
+    <button class="nav-btn" onclick="showTab('smb')" id="nb-smb">
+      <span class="ico">🧠</span><span class="lbl">Mejora</span>
+    </button>
+    <button class="nav-btn" onclick="showTab('links')" id="nb-links">
+      <span class="ico">🔗</span><span class="lbl">Links</span>
+    </button>
+    <button class="nav-btn" onclick="showTab('datos')" id="nb-datos">
+      <span class="ico">⬆️</span><span class="lbl">Datos</span>
+    </button>
+    <button class="nav-btn" onclick="showTab('ia')" id="nb-ia">
+      <span class="ico">🤖</span><span class="lbl">IA</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════
+const DEFAULT_REAL = {"summary":{"total_trades":2178,"total_profit":-124170.12,"win_rate":54.4,"avg_profit":-57.01,"sl_pct":39.3,"avg_lot":2.69,"max_lot":150.0,"with_sl_avg":-12.32,"no_sl_avg":-85.95,"with_sl_wr":46.5,"no_sl_wr":59.5},"monthly":[{"month":"2026-02","trades":523,"profit":-13017.16,"wins":279,"losses":244,"wr":53.3,"avg_lot":1.24,"max_lot":100.0,"sl_pct":44.2},{"month":"2026-03","trades":658,"profit":-22605.5,"wins":345,"losses":313,"wr":52.4,"avg_lot":1.29,"max_lot":30.0,"sl_pct":45.6},{"month":"2026-04","trades":458,"profit":1088.15,"wins":262,"losses":196,"wr":57.2,"avg_lot":0.33,"max_lot":20.0,"sl_pct":27.3},{"month":"2026-05","trades":260,"profit":-81743.13,"wins":147,"losses":113,"wr":56.5,"avg_lot":15.68,"max_lot":150.0,"sl_pct":29.2},{"month":"2026-06","trades":279,"profit":-7892.48,"wins":151,"losses":128,"wr":54.1,"avg_lot":0.46,"max_lot":15.0,"sl_pct":44.4}],"weekly":[{"week":"2026-03-30","trades":126,"profit":-5790.91,"wr":57.9},{"week":"2026-04-06","trades":201,"profit":-50.97,"wr":58.2},{"week":"2026-04-13","trades":123,"profit":1624.23,"wr":60.2},{"week":"2026-04-20","trades":17,"profit":15.44,"wr":52.9},{"week":"2026-04-27","trades":41,"profit":-81.91,"wr":51.2},{"week":"2026-05-04","trades":31,"profit":1011.19,"wr":38.7},{"week":"2026-05-11","trades":181,"profit":-72713.17,"wr":57.5},{"week":"2026-05-18","trades":41,"profit":-3092.15,"wr":65.9},{"week":"2026-05-25","trades":7,"profit":-6949.0,"wr":57.1},{"week":"2026-06-01","trades":143,"profit":-7180.75,"wr":56.6},{"week":"2026-06-08","trades":86,"profit":-275.07,"wr":54.7},{"week":"2026-06-15","trades":50,"profit":-436.66,"wr":46.0}]};
+const DEFAULT_DEMO = {"summary":{"total_trades":3656,"total_profit":-1573.65,"win_rate":51.0,"avg_profit":-0.43,"sl_pct":80.1,"avg_lot":0.04,"max_lot":1.6,"with_sl_avg":-0.31,"no_sl_avg":-0.92,"with_sl_wr":48.6,"no_sl_wr":60.4},"monthly":[{"month":"2025-05","trades":140,"profit":-25.99,"wins":77,"losses":63,"wr":55.0,"avg_lot":0.03,"max_lot":0.18,"sl_pct":69.3},{"month":"2025-06","trades":161,"profit":-78.01,"wins":68,"losses":93,"wr":42.2,"avg_lot":0.02,"max_lot":0.16,"sl_pct":90.1},{"month":"2025-07","trades":106,"profit":-246.2,"wins":47,"losses":59,"wr":44.3,"avg_lot":0.13,"max_lot":0.6,"sl_pct":96.3},{"month":"2025-08","trades":132,"profit":-32.52,"wins":52,"losses":80,"wr":39.4,"avg_lot":0.03,"max_lot":1.0,"sl_pct":88.0},{"month":"2025-09","trades":345,"profit":-46.32,"wins":160,"losses":185,"wr":46.4,"avg_lot":0.07,"max_lot":0.5,"sl_pct":96.9},{"month":"2025-10","trades":545,"profit":-120.32,"wins":311,"losses":234,"wr":57.1,"avg_lot":0.08,"max_lot":1.6,"sl_pct":82.5},{"month":"2025-11","trades":222,"profit":-106.72,"wins":125,"losses":97,"wr":56.3,"avg_lot":0.03,"max_lot":1.0,"sl_pct":84.3},{"month":"2025-12","trades":215,"profit":-103.17,"wins":97,"losses":118,"wr":45.1,"avg_lot":0.02,"max_lot":0.23,"sl_pct":77.5},{"month":"2026-01","trades":147,"profit":-29.16,"wins":64,"losses":83,"wr":43.5,"avg_lot":0.06,"max_lot":0.31,"sl_pct":92.5},{"month":"2026-02","trades":738,"profit":-314.59,"wins":428,"losses":310,"wr":58.0,"avg_lot":0.04,"max_lot":0.5,"sl_pct":75.7},{"month":"2026-03","trades":274,"profit":-50.13,"wins":131,"losses":143,"wr":47.8,"avg_lot":0.01,"max_lot":0.1,"sl_pct":86.9},{"month":"2026-04","trades":170,"profit":-123.94,"wins":68,"losses":102,"wr":40.0,"avg_lot":0.03,"max_lot":0.15,"sl_pct":78.5},{"month":"2026-05","trades":298,"profit":-285.02,"wins":154,"losses":144,"wr":51.7,"avg_lot":0.02,"max_lot":0.1,"sl_pct":47.7},{"month":"2026-06","trades":126,"profit":-11.56,"wins":81,"losses":45,"wr":64.3,"avg_lot":0.02,"max_lot":0.1,"sl_pct":73.0}],"weekly":[{"week":"2026-03-09","trades":44,"profit":-21.86,"wr":36.4},{"week":"2026-03-16","trades":129,"profit":23.01,"wr":48.1},{"week":"2026-03-23","trades":55,"profit":-31.74,"wr":52.7},{"week":"2026-04-06","trades":55,"profit":-11.49,"wr":36.4},{"week":"2026-04-13","trades":51,"profit":-39.09,"wr":37.3},{"week":"2026-04-20","trades":59,"profit":-66.85,"wr":47.5},{"week":"2026-04-27","trades":31,"profit":-20.51,"wr":32.3},{"week":"2026-05-04","trades":40,"profit":-5.76,"wr":60.0},{"week":"2026-05-11","trades":118,"profit":-221.32,"wr":57.6},{"week":"2026-05-18","trades":56,"profit":-20.71,"wr":48.2},{"week":"2026-05-25","trades":58,"profit":-23.23,"wr":44.8},{"week":"2026-06-08","trades":126,"profit":-11.56,"wr":64.3}]};
+
+const DEFAULT_PLAYBOOK = {
+  contexto:`**Lectura Global (Método Trullas)**\n- Identifica sentimiento: ¿miedo o euforia? VIX, precio vs MA200, estructura\n- Define sesgo del día: Largo / Corto / Sin operación\n- Pregunta clave: ¿El precio viene de un exceso o de equilibrio?\n\n**Volumen y Liquidez**\n- Volumen creciente en el impulso = intención institucional\n- Volumen decreciente en retroceso = zona de baja presión → entrada posible\n- Liquidez bajo mínimos / sobre máximos previos = caza de stops\n- Divergencia precio-volumen: precio sube, volumen baja = debilidad`,
+  setups:`**Setup A — Retroceso + volumen decreasing (HLIT)**\n1. Tendencia clara en H1/M15\n2. Retroceso a Fibonacci 50-61.8%\n3. Volumen retroceso < volumen impulso\n4. Vela de confirmación con volumen entrante\n5. Entrada: apertura siguiente vela\n\n**Setup B — Giro en zona de liquidez (Cyborg)**\n1. Precio alcanza máximo/mínimo significativo previo\n2. Spike de volumen = absorción institucional\n3. Divergencia en oscilador\n4. Rechazo con vela de reversión | Ratio mínimo 1:3\n\n**Setup C — Ruptura falsa (Fake Out)**\n1. Rompe nivel clave con volumen bajo\n2. Sin continuación\n3. Regresa al nivel roto\n4. Entrada en recuperación del nivel`,
+  gestion:`**Reglas NO negociables**\n- Riesgo máx por operación: 1% del capital\n- Ratio mínimo: 1:3\n- SL: SIEMPRE antes de entrar, nunca mover en contra\n- Máx 3 operaciones por sesión\n- Pérdida diaria -3% → cierra la pantalla\n\n**Lotaje por confianza**\n- Setup A+ (todos los criterios): lotaje estándar\n- Setup B (parcial): 50% del lote\n- Duda o euforia: NO operar\n\n**Alertas de revenge trading**\n- 2 pérdidas seguidas → pausa 30 min\n- 3 pérdidas seguidas → fin de sesión\n- Impulso de subir lotaje tras pérdida → revisión emocional`,
+  emocional:`**Checklist pre-sesión**\n☐ ¿Dormí bien y estoy descansado?\n☐ ¿Tengo agenda clara sin interrupciones?\n☐ ¿Necesito recuperar pérdidas recientes?\n☐ ¿Siento urgencia por operar?\n☐ ¿Mi plan está escrito antes de abrir la plataforma?\n\nSi 2 o más son negativas → NO operar hoy.\n\n**Post-sesión**\n- Registrar cada operación: ¿seguí el plan?\n- Calificar la sesión 1-10 en disciplina (no en resultado)\n- Anotar el error principal si lo hubo`
+};
+
+// ── LOAD STATE ──────────────────────────────────────────────────────────
+function ls(k,def){try{const v=localStorage.getItem(k);return v?JSON.parse(v):def}catch{return def}}
+function ss(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+
+let state = {
+  tab: 'playbook',
+  metAccount: 'real',
+  metView: 'monthly',
+  metSelDay: null,
+  editSection: null,
+  editDraft: '',
+  playbook: ls('pb', DEFAULT_PLAYBOOK),
+  realData: ls('realData', DEFAULT_REAL),
+  demoData: ls('demoData', DEFAULT_DEMO),
+  realDaily: ls('realDaily', ls('realData', DEFAULT_REAL).daily || {}),
+  demoDaily: ls('demoDaily', ls('demoData', DEFAULT_DEMO).daily || {}),
+  smbReports: ls('smbReports', []),
+  smbVictories: ls('smbVictories', []),
+  smbShowForm: false,
+  smbError: '', smbImpact: 'alto', smbWhyCount: 3,
+  smbWhys: ['','','','',''],
+  smbSolution: '',
+  newVictory: '',
+  smbSub: 'pilares',
+  smbEditPilar: null,
+  smbPilares: ls('smbPilares', null),
+  metDateFrom: '',
+  metDateTo: '',
+  metWeekDateFrom: '',
+  metWeekDateTo: '',
+  iaApiKey: ls('iaApiKey', ''),
+  iaMessages: [],
+  iaLoading: false,
+  iaAnalysis: null,
+  iaAnalysisLoading: false,
+  links: ls('links', [
+    {id:1, name:'TradingView', url:'https://www.tradingview.com'},
+    {id:2, name:'Exness — Área de clientes', url:'https://my.exness.com'},
+    {id:3, name:'Myfxbook — Track record', url:'https://www.myfxbook.com'},
+  ]),
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+// CSV PARSER
+// ═══════════════════════════════════════════════════════════════════════
+function parseCSV(text) {
+  // Detect separator (comma or semicolon)
+  const firstLine = text.trim().split('\n')[0];
+  const sep = firstLine.split(';').length > firstLine.split(',').length ? ';' : ',';
+  
+  const lines = text.trim().split('\n');
+  // Skip comment/info lines that don't look like headers (Exness sometimes adds them)
+  let headerIdx = 0;
+  for(let i=0;i<Math.min(5,lines.length);i++){
+    if(lines[i].toLowerCase().includes('profit') || lines[i].toLowerCase().includes('time') || lines[i].toLowerCase().includes('ticket')){
+      headerIdx = i; break;
+    }
+  }
+  const headers = lines[headerIdx].split(sep).map(h=>h.trim().replace(/"/g,'').toLowerCase());
+  const rows = [];
+  for(let i=headerIdx+1;i<lines.length;i++){
+    if(!lines[i].trim()) continue;
+    // Handle quoted fields with commas inside
+    const vals = splitCSVLine(lines[i], sep);
+    const row = {};
+    headers.forEach((h,j)=>{ row[h] = (vals[j]||'').trim().replace(/"/g,''); });
+    // Accept row if it has any profit-like field
+    const hasProfit = headers.some(h=>h.includes('profit'));
+    if(hasProfit) rows.push(row);
+  }
+  return rows;
+}
+
+function splitCSVLine(line, sep) {
+  const result = []; let cur = ''; let inQ = false;
+  for(let i=0;i<line.length;i++){
+    if(line[i]==='"'){inQ=!inQ;}
+    else if(line[i]===sep&&!inQ){result.push(cur);cur='';}
+    else{cur+=line[i];}
+  }
+  result.push(cur);
+  return result;
+}
+
+// Map flexible Exness column names to canonical names
+function normalizeRow(row, headers) {
+  // Priority finder: exact match first, then partial
+  const findExact = (...names) => {
+    for(const n of names){
+      const k = headers.find(h => h === n);
+      if(k !== undefined) return row[k]||'';
+    }
+    return null;
+  };
+  const find = (...names) => {
+    // Try exact first
+    const exact = findExact(...names);
+    if(exact !== null) return exact;
+    // Then partial, but exclude columns that contain other keywords
+    for(const n of names){
+      const k = headers.find(h => h.includes(n));
+      if(k !== undefined) return row[k]||'';
+    }
+    return '';
+  };
+  // For profit: be very specific — avoid swap, commission, balance
+  const profitField = (() => {
+    // Exness exact names
+    const exact = ['profit','ganancia','p&l','pnl','resultado','net profit'];
+    for(const n of exact){
+      const k = headers.find(h => h === n);
+      if(k !== undefined) return row[k]||'';
+    }
+    // Partial but must not include swap/commission/balance/running/floating
+    const bad = ['swap','commission','balance','running','floating','fee','tax'];
+    const k = headers.find(h =>
+      h.includes('profit') &&
+      !bad.some(b => h.includes(b))
+    );
+    return k !== undefined ? row[k]||'' : '';
+  })();
+
+  return {
+    opening_time_utc: find('open time','opening_time','open_time','time','fecha'),
+    profit:           profitField,
+    stop_loss:        find('s/l','sl','stop_loss','stop loss','stoploss'),
+    lots:             find('lots','lotes','volume','vol','size','lotaje'),
+    symbol:           find('symbol','simbolo','instrument','pair','activo'),
+    type:             find('type','tipo','direction','side'),
+  };
+}
+
+function processRows(rawRows) {
+  const headers = rawRows.length ? Object.keys(rawRows[0]) : [];
+  const rows = rawRows.map(r => normalizeRow(r, headers));
+  const valid = rows.filter(r => r.opening_time_utc && r.profit !== '' && !isNaN(parseFloat(r.profit)));
+  
+  // monthly / weekly / daily
+  const monthly = {};
+  const weekly = {};
+  const daily = {};
+  valid.forEach(r => {
+    const d = new Date(r.opening_time_utc);
+    const mKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const profit = parseFloat(r.profit);
+    const sl = r.stop_loss && r.stop_loss !== '' && r.stop_loss !== '0';
+    const lots = parseFloat(r.lots)||0;
+    if(!monthly[mKey]) monthly[mKey]={month:mKey,trades:0,profit:0,wins:0,losses:0,lots:[],slCount:0};
+    monthly[mKey].trades++;
+    monthly[mKey].profit += profit;
+    if(profit>0) monthly[mKey].wins++; else if(profit<0) monthly[mKey].losses++;
+    monthly[mKey].lots.push(lots);
+    if(sl) monthly[mKey].slCount++;
+
+    // daily
+    const dKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if(!daily[dKey]) daily[dKey]={trades:0,profit:0,wins:0,ops:[]};
+    daily[dKey].trades++; daily[dKey].profit+=profit;
+    if(profit>0) daily[dKey].wins++;
+    daily[dKey].ops.push({
+      symbol: r.symbol||'—',
+      type:   r.type||'—',
+      lots:   parseFloat(r.lots)||0,
+      profit: parseFloat(r.profit)||0,
+      sl:     r.stop_loss&&r.stop_loss!=='0'&&r.stop_loss!==''
+    });
+
+    // week: get monday
+    const dow = d.getDay(); const diff = d.getDate() - dow + (dow===0?-6:1);
+    const mon = new Date(d.setDate(diff));
+    const wKey = `${mon.getFullYear()}-${String(mon.getMonth()+1).padStart(2,'0')}-${String(mon.getDate()).padStart(2,'0')}`;
+    if(!weekly[wKey]) weekly[wKey]={week:wKey,trades:0,profit:0,wins:0};
+    weekly[wKey].trades++; weekly[wKey].profit+=profit;
+    if(profit>0) weekly[wKey].wins++;
+  });
+
+  // Round daily profits
+  Object.keys(daily).forEach(k=>{ daily[k].profit=Math.round(daily[k].profit*100)/100; });
+
+  const monthlyArr = Object.values(monthly).sort((a,b)=>a.month.localeCompare(b.month)).map(m=>({
+    month:m.month, trades:m.trades,
+    profit:Math.round(m.profit*100)/100,
+    wins:m.wins, losses:m.losses,
+    wr:Math.round(m.wins/m.trades*1000)/10,
+    avg_lot:Math.round(m.lots.reduce((a,b)=>a+b,0)/m.lots.length*100)/100,
+    max_lot:Math.max(...m.lots),
+    sl_pct:Math.round(m.slCount/m.trades*1000)/10
+  }));
+
+  const weeklyArr = Object.values(weekly).sort((a,b)=>a.week.localeCompare(b.week)).slice(-12).map(w=>({
+    week:w.week, trades:w.trades,
+    profit:Math.round(w.profit*100)/100,
+    wr:Math.round(w.wins/w.trades*1000)/10
+  }));
+
+  // summary
+  const allProfits = valid.map(r=>parseFloat(r.profit));
+  const withSL = valid.filter(r=>r.stop_loss&&r.stop_loss!==''&&r.stop_loss!=='0');
+  const noSL = valid.filter(r=>!r.stop_loss||r.stop_loss===''||r.stop_loss==='0');
+  const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+  const wr = arr => arr.length ? arr.filter(x=>x>0).length/arr.length*100 : 0;
+  
+  return {
+    summary:{
+      total_trades:valid.length,
+      total_profit:Math.round(allProfits.reduce((a,b)=>a+b,0)*100)/100,
+      win_rate:Math.round(wr(allProfits)*10)/10,
+      avg_profit:Math.round(avg(allProfits)*100)/100,
+      sl_pct:Math.round(withSL.length/valid.length*1000)/10,
+      avg_lot:Math.round(avg(valid.map(r=>parseFloat(r.lots)||0))*100)/100,
+      max_lot:Math.max(...valid.map(r=>parseFloat(r.lots)||0)),
+      with_sl_avg:Math.round(avg(withSL.map(r=>parseFloat(r.profit)))*100)/100,
+      no_sl_avg:Math.round(avg(noSL.map(r=>parseFloat(r.profit)))*100)/100,
+      with_sl_wr:Math.round(wr(withSL.map(r=>parseFloat(r.profit)))*10)/10,
+      no_sl_wr:Math.round(wr(noSL.map(r=>parseFloat(r.profit)))*10)/10,
+    },
+    monthly:monthlyArr, weekly:weeklyArr, daily
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════
+const fmt  = (n, d=2) => {
+  if(n==null) return '—';
+  const abs = Math.abs(n);
+  if(abs >= 1000000) return (abs/1000000).toFixed(2)+'M';
+  if(abs >= 1000)    return (abs/1000).toFixed(1)+'k';
+  return abs.toFixed(d);
+};
+const fmtP = n => {
+  if(n == null) return '—';
+  const num = parseFloat(n);
+  if(isNaN(num)) return '—';
+  return (num >= 0 ? '+$' : '-$') + fmt(Math.abs(num), 2);
+};
+const scolor = (v,g,b) => v>=g?'#22c55e':v<=b?'#ef4444':'#f59e0b';
+const today = () => new Date().toLocaleDateString('es-ES');
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════════
+function showTab(tab){
+  state.tab=tab;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('nb-'+tab).classList.add('active');
+  render();
+}
+
+function render(){
+  const el = document.getElementById('main-body');
+  el.scrollTop = 0;
+  if(state.tab==='playbook') el.innerHTML = renderPlaybook();
+  else if(state.tab==='metricas') el.innerHTML = renderMetricas();
+  else if(state.tab==='diagnostico') el.innerHTML = renderDiagnostico();
+  else if(state.tab==='smb') el.innerHTML = renderSMB();
+  else if(state.tab==='links') el.innerHTML = renderLinks();
+  else if(state.tab==='datos') el.innerHTML = renderDatos();
+  else if(state.tab==='ia') el.innerHTML = renderIA();
+  bindEvents();
+}
+
+// ── PLAYBOOK ─────────────────────────────────────────────────────────
+function renderPBText(text){
+  return text.split('\n').map(line=>{
+    if(line.startsWith('**')&&line.endsWith('**')) return `<p class="pbh">${line.replace(/\*\*/g,'')}</p>`;
+    if(/^[-☐☑]/.test(line)||/^\d\./.test(line)) return `<p class="pbi">${line}</p>`;
+    return line?`<p>${line}</p>`:'<br/>';
+  }).join('');
+}
+
+const PB_SECS = [
+  {key:'contexto',title:'📊 Lectura de Mercado',sub:'Sentimiento, sesgo, volumen y liquidez'},
+  {key:'setups',title:'🎯 Setups Válidos',sub:'Condiciones para entrar'},
+  {key:'gestion',title:'⚖️ Gestión de Riesgo',sub:'Reglas no negociables'},
+  {key:'emocional',title:'🧠 Protocolo Emocional',sub:'Checklists pre y post sesión'},
+];
+
+function renderPlaybook(){
+  return PB_SECS.map(s=>{
+    const editing = state.editSection===s.key;
+    return `<div class="pb-section">
+      <div class="pb-sec-hdr">
+        <div>
+          <div class="pb-sec-title">${s.title}</div>
+          <div class="pb-sec-sub">${s.sub}</div>
+        </div>
+        ${editing
+          ? `<div style="display:flex;gap:6px"><button class="pb-save-btn" onclick="pbSave('${s.key}')">Guardar</button><button class="btn-secondary" onclick="pbCancel()">✕</button></div>`
+          : `<button class="pb-edit-btn" onclick="pbEdit('${s.key}')">✏️ Editar</button>`
+        }
+      </div>
+      ${editing
+        ? `<textarea class="pb-textarea" id="pb-draft" oninput="state.editDraft=this.value">${state.editDraft}</textarea>`
+        : `<div class="pb-content">${renderPBText(state.playbook[s.key])}</div>`
+      }
+    </div>`;
+  }).join('');
+}
+
+function pbEdit(key){state.editSection=key;state.editDraft=state.playbook[key];render();}
+function pbCancel(){state.editSection=null;render();}
+function pbSave(key){state.playbook[key]=state.editDraft;ss('pb',state.playbook);state.editSection=null;render();}
+
+// ── MÉTRICAS ─────────────────────────────────────────────────────────
+const MAX_CHART_COLS = 12; // max columns to keep chart readable
+
+function getDefaultChartRange(data, key){
+  // Return last MAX_CHART_COLS items as default range
+  if(!data || !data.length) return {from:'', to:''};
+  const sorted = [...data].sort((a,b)=>(a[key]||'').localeCompare(b[key]||''));
+  const slice = sorted.slice(-MAX_CHART_COLS);
+  return { from: slice[0][key]||'', to: slice[slice.length-1][key]||'' };
+}
+
+function renderMiniChart(data, key, fromDate, toDate){
+  const sorted = [...data].sort((a,b)=>(a[key]||'').localeCompare(b[key]||''));
+
+  // Apply filter
+  let filtered = sorted;
+  if(fromDate || toDate){
+    filtered = sorted.filter(d=>{
+      const dk = d[key] || '';
+      if(fromDate && dk < fromDate) return false;
+      if(toDate && dk > toDate) return false;
+      return true;
+    });
+  }
+  // Default: last MAX_CHART_COLS if no filter
+  if(!fromDate && !toDate) filtered = sorted.slice(-MAX_CHART_COLS);
+  // Hard cap to MAX_CHART_COLS (take last N if over)
+  if(filtered.length > MAX_CHART_COLS) filtered = filtered.slice(-MAX_CHART_COLS);
+  if(!filtered.length) filtered = sorted.slice(-MAX_CHART_COLS);
+
+  const vals = filtered.map(d=>d.profit);
+  const maxAbs = Math.max(...vals.map(Math.abs), 1);
+
+  // Short label per period
+  const shortLbl = (d) => {
+    const raw = (d[key]||'');
+    if(key==='month') return raw.replace(/\d{4}-/,'').replace(/^0/,'');   // "06"→"6"
+    // week: show "M/D"
+    const parts = raw.split('-');
+    if(parts.length>=3) return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
+    return raw.substring(5);
+  };
+
+  return `
+  <!-- WR bars row -->
+  <div style="display:flex;gap:3px;align-items:flex-end;height:30px;margin-bottom:1px">
+    ${filtered.map(d=>{
+      const wr = d.wr || 0;
+      const h = Math.max(2, Math.round(wr/100*26));
+      const wrColor = wr>=55?'#22c55e':wr>=45?'#f59e0b':'#ef4444';
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end">
+        <div style="font-size:6px;color:${wrColor};font-weight:700;line-height:1;margin-bottom:1px">${Math.round(wr)}%</div>
+        <div style="width:100%;height:${h}px;background:${wrColor};opacity:0.35;border-radius:2px 2px 0 0"></div>
+      </div>`;
+    }).join('')}
+  </div>
+  <!-- P&L bars row -->
+  <div style="display:flex;gap:3px;align-items:flex-end;height:64px;margin-bottom:0">
+    ${filtered.map(d=>{
+      const h = Math.max(4, Math.round(Math.abs(d.profit)/maxAbs*58));
+      const color = d.profit>=0?'#22c55e':'#ef4444';
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end">
+        <div style="width:100%;height:${h}px;background:${color};border-radius:3px 3px 0 0"></div>
+      </div>`;
+    }).join('')}
+  </div>
+  <!-- Labels row -->
+  <div style="display:flex;gap:3px;margin-bottom:8px">
+    ${filtered.map(d=>{
+      const profit = d.profit;
+      return `<div style="flex:1;text-align:center;padding-top:3px">
+        <div style="font-size:8px;color:var(--text3)">${shortLbl(d)}</div>
+        <div style="font-size:7px;color:var(--text4)">${d.trades||''}</div>
+      </div>`;
+    }).join('')}
+  </div>
+  <!-- Legend -->
+  <div style="display:flex;justify-content:center;gap:12px;padding-top:4px;border-top:1px solid var(--border)">
+    <div style="display:flex;align-items:center;gap:3px"><div style="width:8px;height:3px;background:#22c55e;opacity:.4;border-radius:1px"></div><span style="font-size:9px;color:var(--text4)">WR</span></div>
+    <div style="display:flex;align-items:center;gap:3px"><div style="width:8px;height:3px;background:#ef4444;border-radius:1px"></div><span style="font-size:9px;color:var(--text4)">P&L</span></div>
+  </div>`;
+}
+
+function renderMetricas(){
+  const d = state.metAccount==='real' ? state.realData : state.demoData;
+  const s = d.summary; const isReal = state.metAccount==='real';
+  const chartData = state.metView==='monthly' ? d.monthly : d.weekly;
+  const xKey = state.metView==='monthly' ? 'month' : 'week';
+
+  const alerts = [];
+  if(isReal){
+    if(s.sl_pct<50) alerts.push({t:'danger',m:`🚨 Solo ${s.sl_pct}% de trades con SL. Sin SL: pérdida media $${Math.abs(s.no_sl_avg)} vs $${Math.abs(s.with_sl_avg)} con SL.`});
+    if(s.max_lot>50) alerts.push({t:'danger',m:`🚨 Lote máximo ${s.max_lot}. Mayo 26 tuvo avg 15.68 lotes → señal de revenge trading.`});
+    if(s.avg_profit<-30) alerts.push({t:'warning',m:`⚠️ Pérdida media por trade: $${Math.abs(s.avg_profit)}. El sistema pierde aunque WR>54%.`});
+  } else {
+    alerts.push({t:'success',m:`✅ Demo: SL en ${s.sl_pct}% — mucho más disciplinado que real (39.3%).`});
+    alerts.push({t:'info',m:`📌 Con SL: avg ${fmtP(s.with_sl_avg)} | Sin SL: avg ${fmtP(s.no_sl_avg)}`});
+  }
+
+  return `
+  <div class="seg">
+    <button class="seg-btn ${state.metAccount==='real'?'active':''}" onclick="setMetAcc('real')">🔴 Real</button>
+    <button class="seg-btn ${state.metAccount==='demo'?'active':''}" onclick="setMetAcc('demo')">🔵 Demo</button>
+  </div>
+
+  <div class="pills">
+    <div class="pill" style="border-color:${s.total_profit>=0?'#22c55e':'#ef4444'}">
+      <div class="p-label">P&L Total</div>
+      <div class="p-val" style="color:${s.total_profit>=0?'#22c55e':'#ef4444'};font-size:13px">${fmtP(s.total_profit)}</div>
+    </div>
+    <div class="pill" style="border-color:${scolor(s.win_rate,55,45)}">
+      <div class="p-label">Win Rate</div>
+      <div class="p-val" style="color:${scolor(s.win_rate,55,45)}">${s.win_rate}%</div>
+    </div>
+    <div class="pill" style="border-color:${scolor(s.sl_pct,80,50)}">
+      <div class="p-label">SL Usado</div>
+      <div class="p-val" style="color:${scolor(s.sl_pct,80,50)}">${s.sl_pct}%</div>
+    </div>
+    <div class="pill" style="border-color:#818cf8">
+      <div class="p-label">Trades</div>
+      <div class="p-val" style="color:#818cf8;font-size:15px">${fmt(s.total_trades)}</div>
+    </div>
+    <div class="pill" style="border-color:#94a3b8">
+      <div class="p-label">Lote Med</div>
+      <div class="p-val" style="color:#94a3b8;font-size:15px">${fmt(s.avg_lot,2)}</div>
+    </div>
+    <div class="pill" style="border-color:${s.max_lot>10?'#ef4444':'#94a3b8'}">
+      <div class="p-label">Lote Máx</div>
+      <div class="p-val" style="color:${s.max_lot>10?'#ef4444':'#94a3b8'};font-size:15px">${fmt(s.max_lot,1)}</div>
+    </div>
+  </div>
+
+  ${alerts.map(a=>`<div class="alert ${a.t}">${a.m}</div>`).join('')}
+
+  <div class="card">
+    <div class="card-title">Impacto del Stop Loss</div>
+    <div class="sl-compare">
+      <div class="sl-bar-wrap">
+        <div class="sl-label">Con SL</div>
+        <div class="sl-bar-bg"><div class="sl-bar-fill" style="width:${s.with_sl_wr}%;background:#22c55e"></div></div>
+        <div class="sl-stat" style="color:#22c55e">${s.with_sl_wr}% WR</div>
+        <div style="color:#6b7280;font-size:10px">avg ${fmtP(s.with_sl_avg)}</div>
+      </div>
+      <div class="sl-bar-wrap">
+        <div class="sl-label">Sin SL</div>
+        <div class="sl-bar-bg"><div class="sl-bar-fill" style="width:${s.no_sl_wr}%;background:#ef4444"></div></div>
+        <div class="sl-stat" style="color:#ef4444">${s.no_sl_wr}% WR</div>
+        <div style="color:#6b7280;font-size:10px">avg ${fmtP(s.no_sl_avg)}</div>
+      </div>
+    </div>
+    <div style="color:#4b5563;font-size:10px;margin-top:4px">Sin SL el WR sube pero las pérdidas son ${isReal?'7x':'3x'} mayores.</div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="card-title" style="margin-bottom:0">P&L por período</div>
+      <div style="display:flex;gap:4px">
+        <button class="btn-secondary" style="${state.metView==='monthly'?'background:#4f46e5;color:#fff;border-color:#4f46e5':''}" onclick="setMetView('monthly')">Mes</button>
+        <button class="btn-secondary" style="${state.metView==='weekly'?'background:#4f46e5;color:#fff;border-color:#4f46e5':''}" onclick="setMetView('weekly')">Sem</button>
+      </div>
+    </div>
+    ${(()=>{
+      // Compute picker bounds: min = earliest date in data, max = latest
+      const sorted = [...chartData].sort((a,b)=>(a[xKey]||'').localeCompare(b[xKey]||''));
+      const earliest = sorted[0]?.[xKey]||'';
+      const latest   = sorted[sorted.length-1]?.[xKey]||'';
+      // Enforce: if toDate selected, fromDate min = toDate - 11 periods; if fromDate, toDate max = fromDate + 11 periods
+      // We show the range cap hint
+      const colCount = (() => {
+        let f = sorted;
+        if(state.metDateFrom||state.metDateTo){
+          f = sorted.filter(d=>{
+            const dk=d[xKey]||'';
+            if(state.metDateFrom && dk<state.metDateFrom) return false;
+            if(state.metDateTo && dk>state.metDateTo) return false;
+            return true;
+          });
+        } else { f = sorted.slice(-MAX_CHART_COLS); }
+        return Math.min(f.length, MAX_CHART_COLS);
+      })();
+      const isFiltered = !!(state.metDateFrom||state.metDateTo);
+      const overLimit = (() => {
+        if(!isFiltered) return false;
+        const f = sorted.filter(d=>{
+          const dk=d[xKey]||'';
+          if(state.metDateFrom && dk<state.metDateFrom) return false;
+          if(state.metDateTo && dk>state.metDateTo) return false;
+          return true;
+        });
+        return f.length > MAX_CHART_COLS;
+      })();
+      return `
+      <div style="display:flex;gap:6px;margin-bottom:8px;align-items:flex-end">
+        <div style="flex:1">
+          <div style="font-size:9px;color:var(--text4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.6px">Desde</div>
+          <input type="${state.metView==='monthly'?'month':'week'}" value="${state.metDateFrom}"
+            min="${earliest}" max="${latest}"
+            oninput="state.metDateFrom=this.value;render()"
+            style="width:100%;background:var(--bg4);color:var(--text2);border:1px solid var(--border2);border-radius:6px;padding:5px 7px;font-size:11px;-webkit-appearance:none">
+        </div>
+        <div style="flex:1">
+          <div style="font-size:9px;color:var(--text4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.6px">Hasta</div>
+          <input type="${state.metView==='monthly'?'month':'week'}" value="${state.metDateTo}"
+            min="${earliest}" max="${latest}"
+            oninput="state.metDateTo=this.value;render()"
+            style="width:100%;background:var(--bg4);color:var(--text2);border:1px solid var(--border2);border-radius:6px;padding:5px 7px;font-size:11px;-webkit-appearance:none">
+        </div>
+        ${isFiltered?`<button onclick="state.metDateFrom='';state.metDateTo='';render()" style="background:var(--bg4);color:var(--text3);border:1px solid var(--border2);border-radius:6px;padding:6px 9px;font-size:12px;cursor:pointer">✕</button>`:''}
+      </div>
+      ${overLimit?`<div style="font-size:10px;color:var(--yellow);margin-bottom:6px">⚠️ Mostrando los últimos ${MAX_CHART_COLS} períodos del rango seleccionado</div>`:''}
+      ${!isFiltered?`<div style="font-size:10px;color:var(--text4);margin-bottom:6px">Mostrando últimos ${colCount} períodos · máx ${MAX_CHART_COLS}</div>`:''}
+      `;
+    })()}
+    ${renderMiniChart(chartData, xKey, state.metDateFrom, state.metDateTo)}
+  </div>
+
+  ${renderUltimaSemana(d)}
+
+  <div class="card" style="padding:12px 8px">
+    <div class="card-title" style="padding-left:8px;margin-bottom:8px">Detalle mensual</div>
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead><tr>
+          <th>Mes</th><th>Trades</th><th>P&L</th><th>WR</th><th>SL%</th><th>LoteM</th>
+        </tr></thead>
+        <tbody>
+          ${d.monthly.map(r=>`<tr>
+            <td>${r.month.replace('20','').replace('-',' / ')}</td>
+            <td>${r.trades}</td>
+            <td style="color:${r.profit>=0?'#22c55e':'#ef4444'};font-weight:700">${fmtP(r.profit)}</td>
+            <td style="color:${scolor(r.wr,55,45)}">${r.wr}%</td>
+            <td style="color:${scolor(r.sl_pct,75,50)}">${r.sl_pct}%</td>
+            <td style="color:${r.max_lot>30?'#ef4444':r.max_lot>10?'#f59e0b':'#94a3b8'}">${r.avg_lot}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// ── LINKS ─────────────────────────────────────────────────────────────
+function renderLinks(){
+  return `
+  <div class="links-form">
+    <div class="links-form-title">🔗 Agregar enlace</div>
+    <div class="links-field">
+      <label>Nombre del sitio</label>
+      <input class="add-input" style="width:100%" id="link-name" type="text" placeholder="Ej: TradingView, Exness...">
+    </div>
+    <div class="links-field">
+      <label>URL</label>
+      <input class="add-input" style="width:100%" id="link-url" type="url" placeholder="https://...">
+    </div>
+    <div class="links-add-row">
+      <button class="btn-primary" onclick="addLink()">+ Agregar</button>
+    </div>
+  </div>
+
+  ${state.links.length === 0
+    ? `<div style="text-align:center;padding:24px 0;color:var(--text4);font-size:13px">Sin links guardados aún.<br><span style="font-size:11px">Agregá tu primero arriba ↑</span></div>`
+    : state.links.map(l => `
+  <div class="link-row">
+    <div class="link-icon">🌐</div>
+    <div class="link-info">
+      <a class="link-name" href="${l.url}" target="_blank" rel="noopener noreferrer">${l.name}</a>
+      <div class="link-url">${l.url}</div>
+    </div>
+    <button class="link-del" onclick="deleteLink(${l.id})" title="Eliminar">🗑️</button>
+  </div>`).join('')
+  }`;
+}
+
+function addLink(){
+  const nameEl = document.getElementById('link-name');
+  const urlEl  = document.getElementById('link-url');
+  const name = nameEl ? nameEl.value.trim() : '';
+  let url = urlEl ? urlEl.value.trim() : '';
+  if(!name || !url) return;
+  if(!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  state.links = [{id: Date.now(), name, url}, ...state.links];
+  ss('links', state.links);
+  render();
+}
+
+function deleteLink(id){
+  state.links = state.links.filter(l => l.id !== id);
+  ss('links', state.links);
+  render();
+}
+
+
+function setMetAcc(a){state.metAccount=a;state.metSelDay=null;render();}
+function setMetView(v){state.metView=v;render();}
+
+function renderUltimaSemana(d){
+  // Build 7-day range or custom range
+  const today = new Date();
+
+  // Parse custom week range
+  const fromStr = state.metWeekDateFrom;
+  const toStr   = state.metWeekDateTo;
+
+  let days = [];
+  if(fromStr || toStr){
+    // Build day list for the selected range
+    const startDt = fromStr ? new Date(fromStr+'T00:00:00') : (() => { const dt = new Date(today); dt.setDate(today.getDate()-6); return dt; })();
+    const endDt   = toStr   ? new Date(toStr+'T23:59:59')   : today;
+    const dayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    const cur = new Date(startDt);
+    while(cur <= endDt && days.length < 60){
+      const key = `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
+      days.push({key, label:dayNames[cur.getDay()], date:String(cur.getDate()).padStart(2,'0')});
+      cur.setDate(cur.getDate()+1);
+    }
+  } else {
+    for(let i=6;i>=0;i--){
+      const dt = new Date(today);
+      dt.setDate(today.getDate()-i);
+      const key = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+      const dayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+      days.push({key, label:dayNames[dt.getDay()], date:String(dt.getDate()).padStart(2,'0')});
+    }
+  }
+
+  const daily = state[`${state.metAccount}Daily`] || {};
+  const weekPnl    = days.reduce((s,d)=>(s+(daily[d.key]?.profit||0)),0);
+  const weekTrades = days.reduce((s,d)=>(s+(daily[d.key]?.trades||0)),0);
+  const weekWins   = days.reduce((s,d)=>(s+(daily[d.key]?.wins||0)),0);
+  const weekWR     = weekTrades>0 ? Math.round(weekWins/weekTrades*100) : 0;
+  const maxAbs     = Math.max(...days.map(d=>Math.abs(daily[d.key]?.profit||0)),1);
+  const hasAnyData = days.some(d=>daily[d.key]);
+  const selDay     = state.metSelDay;
+
+  // ── Detalle del día seleccionado ──
+  let detailHTML = '';
+  if(selDay && daily[selDay]){
+    const dd  = daily[selDay];
+    const ops = dd.ops || [];
+    const dayPnl = dd.profit;
+    detailHTML = `
+    <div style="background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-top:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div>
+          <div style="color:var(--text);font-size:13px;font-weight:700">${selDay}</div>
+          <div style="color:var(--text3);font-size:11px">${ops.length} operaciones</div>
+        </div>
+        <div style="text-align:right">
+          <div style="color:${dayPnl>=0?'var(--green)':'var(--red)'};font-size:16px;font-weight:800">${fmtP(dayPnl)}</div>
+          <div style="color:var(--text3);font-size:10px">${dd.wins}W / ${dd.trades-dd.wins}L</div>
+        </div>
+      </div>
+      ${ops.length===0
+        ? `<div style="color:var(--text4);font-size:12px;text-align:center;padding:8px">Sin detalle disponible (datos anteriores al CSV actual)</div>`
+        : `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;font-size:11px">
+            <div style="color:var(--text4);padding:4px 6px;border-bottom:1px solid var(--border)">Símbolo</div>
+            <div style="color:var(--text4);padding:4px 6px;border-bottom:1px solid var(--border);text-align:center">Lotes</div>
+            <div style="color:var(--text4);padding:4px 6px;border-bottom:1px solid var(--border);text-align:center">SL</div>
+            <div style="color:var(--text4);padding:4px 6px;border-bottom:1px solid var(--border);text-align:right">P&L</div>
+            ${ops.map((op,i)=>{
+              const bg = i%2===0?'transparent':'rgba(255,255,255,0.02)';
+              const col = op.profit>=0?'var(--green)':'var(--red)';
+              const dir = (op.type||'').toLowerCase().includes('buy')?'▲':'▼';
+              const dirCol = (op.type||'').toLowerCase().includes('buy')?'var(--green)':'var(--red)';
+              return `
+              <div style="padding:5px 6px;background:${bg};color:var(--text2)">${dir} <span style="color:${dirCol}">${op.symbol}</span></div>
+              <div style="padding:5px 6px;background:${bg};color:var(--text3);text-align:center">${op.lots.toFixed(2)}</div>
+              <div style="padding:5px 6px;background:${bg};text-align:center">${op.sl?'<span style="color:var(--green)">✓</span>':'<span style="color:var(--red)">✗</span>'}</div>
+              <div style="padding:5px 6px;background:${bg};color:${col};font-weight:700;text-align:right;font-family:monospace">${fmtP(op.profit)}</div>`;
+            }).join('')}
+          </div>`}
+    </div>`;
+  }
+
+  return `<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="card-title" style="margin-bottom:0">📅 Últimos 7 días</div>
+      ${hasAnyData?`<div style="font-size:11px;color:${weekPnl>=0?'var(--green)':'var(--red)'};font-weight:700">${fmtP(weekPnl)}</div>`:''}
+    </div>
+
+    <!-- Date range selector -->
+    <div style="display:flex;gap:6px;margin-bottom:10px;align-items:center">
+      <div style="flex:1">
+        <div style="font-size:9px;color:var(--text4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.6px">Desde</div>
+        <input type="date" value="${state.metWeekDateFrom}" oninput="state.metWeekDateFrom=this.value;state.metSelDay=null;render()"
+          style="width:100%;background:var(--bg4);color:var(--text2);border:1px solid var(--border2);border-radius:6px;padding:5px 7px;font-size:11px;-webkit-appearance:none">
+      </div>
+      <div style="flex:1">
+        <div style="font-size:9px;color:var(--text4);margin-bottom:2px;text-transform:uppercase;letter-spacing:.6px">Hasta</div>
+        <input type="date" value="${state.metWeekDateTo}" oninput="state.metWeekDateTo=this.value;state.metSelDay=null;render()"
+          style="width:100%;background:var(--bg4);color:var(--text2);border:1px solid var(--border2);border-radius:6px;padding:5px 7px;font-size:11px;-webkit-appearance:none">
+      </div>
+      ${(state.metWeekDateFrom||state.metWeekDateTo)?`<button onclick="state.metWeekDateFrom='';state.metWeekDateTo='';state.metSelDay=null;render()" style="background:var(--bg4);color:var(--text3);border:1px solid var(--border2);border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer;margin-top:12px">✕</button>`:''}
+    </div>
+
+    ${!hasAnyData
+      ? `<div style="color:var(--text4);font-size:12px;text-align:center;padding:12px 0">
+          Cargá un CSV para ver el detalle diario.
+         </div>`
+      : `<!-- WR bars top -->
+        <div style="display:flex;gap:3px;align-items:flex-end;height:30px;margin-bottom:1px">
+          ${days.map(day=>{
+            const dd = daily[day.key];
+            if(!dd) return `<div style="flex:1"></div>`;
+            const wr = dd.trades>0 ? Math.round(dd.wins/dd.trades*100) : 0;
+            const h = Math.max(2, Math.round(wr/100*26));
+            const wrColor = wr>=55?'#22c55e':wr>=45?'#f59e0b':'#ef4444';
+            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end">
+              <div style="font-size:6px;color:${wrColor};font-weight:700;line-height:1;margin-bottom:1px">${wr}%</div>
+              <div style="width:100%;height:${h}px;background:${wrColor};opacity:0.35;border-radius:2px 2px 0 0"></div>
+            </div>`;
+          }).join('')}
+        </div>
+        <!-- P&L bars -->
+        <div style="display:flex;gap:3px;align-items:flex-end;height:64px;margin-bottom:0">
+          ${days.map(day=>{
+            const dd = daily[day.key];
+            const profit = dd?.profit||0;
+            const h = dd ? Math.max(6,Math.round(Math.abs(profit)/maxAbs*56)) : 0;
+            const color = profit>0?'var(--green)':profit<0?'var(--red)':'var(--border2)';
+            const isSelected = selDay===day.key;
+            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0;cursor:${dd?'pointer':'default'}"
+              onclick="${dd?`selectMetDay('${day.key}')`:''}">
+              <div style="height:${56-h}px"></div>
+              <div style="width:100%;height:${h}px;background:${color};border-radius:3px 3px 0 0;
+                min-height:${dd?'4px':'0'};
+                outline:${isSelected?`2px solid #fff`:'none'};
+                outline-offset:-1px;
+                opacity:${isSelected?1:0.85};
+                transition:opacity .15s">
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="display:flex;gap:3px;margin-bottom:10px">
+          ${days.map(day=>{
+            const dd = daily[day.key];
+            const profit = dd?.profit||0;
+            const isSelected = selDay===day.key;
+            return `<div style="flex:1;text-align:center;cursor:${dd?'pointer':'default'};padding-top:3px"
+              onclick="${dd?`selectMetDay('${day.key}')`:''}">
+              <div style="font-size:9px;color:${isSelected?'var(--accent2)':'var(--text3)'};font-weight:${isSelected?700:400}">${day.label}</div>
+              <div style="font-size:8px;color:var(--text4)">${day.date}</div>
+              ${dd
+                ? `<div style="font-size:9px;font-weight:700;color:${profit>=0?'var(--green)':'var(--red)'}">${profit>=0?'+':''}${Math.abs(profit)>=1000?Math.round(profit/1000)+'k':Math.round(profit)}</div>
+                   <div style="font-size:8px;color:var(--text4)">${dd.trades}t</div>`
+                : `<div style="font-size:9px;color:var(--border2)">—</div>`}
+            </div>`;
+          }).join('')}
+        </div>
+
+        ${detailHTML}
+
+        <div style="display:flex;gap:12px;margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">
+          <div style="flex:1;text-align:center">
+            <div style="font-size:10px;color:var(--text3)">Trades</div>
+            <div style="font-size:15px;font-weight:700;color:var(--accent2)">${weekTrades}</div>
+          </div>
+          <div style="flex:1;text-align:center">
+            <div style="font-size:10px;color:var(--text3)">Win Rate</div>
+            <div style="font-size:15px;font-weight:700;color:${scolor(weekWR,55,45)}">${weekWR}%</div>
+          </div>
+          <div style="flex:1;text-align:center">
+            <div style="font-size:10px;color:var(--text3)">P&L semana</div>
+            <div style="font-size:15px;font-weight:700;color:${weekPnl>=0?'var(--green)':'var(--red)'}">${fmtP(weekPnl)}</div>
+          </div>
+        </div>`}
+  </div>`;
+}
+
+function selectMetDay(key){
+  state.metSelDay = state.metSelDay===key ? null : key;
+  render();
+}
+
+// ── DIAGNÓSTICO ─────────────────────────────────────────────────────
+function renderDiagnostico(){
+  const rs = state.realData.summary, ds = state.demoData.summary;
+  const items = [
+    {area:'Stop Loss',real_val:`${rs.sl_pct}%`,demo_val:`${ds.sl_pct}%`,target:'>80%',real_s:rs.sl_pct>=80?100:rs.sl_pct>=60?60:rs.sl_pct>=40?30:10,demo_s:ds.sl_pct>=80?100:60,insight:'En real, el 60% de trades van SIN stop. Cada trade sin SL tiene pérdida 7x mayor. Problema #1.'},
+    {area:'Gestión de Lotaje',real_val:`Máx ${rs.max_lot} | Med ${rs.avg_lot}`,demo_val:`Máx ${ds.max_lot} | Med ${ds.avg_lot}`,target:'Máx 2x avg',real_s:8,demo_s:90,insight:'Mayo 26: avg 15.68 lotes con -$81.743. Episodio severo de revenge trading. Demo muestra que sabés controlarlo.'},
+    {area:'Win Rate',real_val:`${rs.win_rate}%`,demo_val:`${ds.win_rate}%`,target:'>55%',real_s:rs.win_rate>=55?80:50,demo_s:ds.win_rate>=55?80:50,insight:'El WR real es razonable (54%). El problema no es encontrar entradas ganadoras, sino la gestión posterior.'},
+    {area:'Resultado promedio',real_val:fmtP(rs.avg_profit),demo_val:fmtP(ds.avg_profit),target:'>$0',real_s:rs.avg_profit>0?100:10,demo_s:ds.avg_profit>-1?70:40,insight:'Con WR 54% y avg -$57/trade el R:R real es negativo. Las pérdidas superan las ganancias en tamaño.'},
+    {area:'Disciplina SL',real_val:`Con SL: ${rs.with_sl_wr}% WR`,demo_val:`Con SL: ${ds.with_sl_wr}% WR`,target:'>50% con SL',real_s:rs.with_sl_wr>=50?70:40,demo_s:ds.with_sl_wr>=50?70:50,insight:'Con SL en real el WR baja al 46.5% pero controla pérdidas. Necesitás mejorar la entrada + el SL, no eliminarlo.'},
+  ];
+  const overall = Math.round(items.reduce((a,i)=>a+i.real_s,0)/items.length);
+  const overallColor = overall>=70?'#22c55e':overall>=50?'#f59e0b':'#ef4444';
+
+  return `
+  <div class="diag-score">
+    <div style="color:#6b7280;font-size:11px;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Alineación Global — Real</div>
+    <div class="big-num" style="color:${overallColor}">${overall}%</div>
+    <div style="color:#4b5563;font-size:12px;margin-top:4px">${overall<40?'Proceso desalineado. Foco en disciplina antes de escalar.':overall<60?'Bases correctas, ejecución inconsistente. 2-3 cambios concretos pueden moverlo.':'Buen nivel. Afinar detalles.'}</div>
+  </div>
+
+  ${items.map(item=>`
+  <div class="diag-area">
+    <div class="diag-area-title">${item.area}</div>
+    <div class="diag-target">Objetivo: ${item.target}</div>
+    <div class="diag-bars">
+      <div class="diag-bar-wrap">
+        <div class="dlabel">🔴 Real</div>
+        <div class="diag-bar-bg"><div class="diag-bar-fill" style="width:${item.real_s}%;background:${scolor(item.real_s,70,40)}"></div></div>
+        <div class="diag-val">${item.real_val}</div>
+      </div>
+      <div class="diag-bar-wrap">
+        <div class="dlabel">🔵 Demo</div>
+        <div class="diag-bar-bg"><div class="diag-bar-fill" style="width:${item.demo_s}%;background:${scolor(item.demo_s,70,40)}"></div></div>
+        <div class="diag-val">${item.demo_val}</div>
+      </div>
+    </div>
+    <div class="diag-insight">${item.insight}</div>
+  </div>`).join('')}`;
+}
+
+// ── SMB ──────────────────────────────────────────────────────────────
+function renderSMB(){
+  const impColors = {alto:'#ef4444',medio:'#f59e0b',bajo:'#22c55e'};
+  const sub = state.smbSub || 'pilares';
+
+  // Sub-nav
+  const subNav = `
+  <div style="display:flex;background:var(--bg4);border-radius:8px;padding:3px;gap:3px;margin-bottom:14px">
+    ${[['pilares','🎯 Pilares'],['registrar','📋 Registrar'],['victorias','🏆 Victorias']].map(([k,l])=>`
+    <button onclick="setSMBSub('${k}')" style="flex:1;padding:7px 0;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;background:${sub===k?'var(--accent)':'transparent'};color:${sub===k?'#fff':'var(--text3)'};transition:.15s">${l}</button>`).join('')}
+  </div>`;
+
+  // ── PILARES ──
+  if(sub==='pilares'){
+    const pilares = state.smbPilares || [
+      {id:1,titulo:'Stop Loss Siempre',desc:'Definir SL antes de entrar. Sin SL lógico → no operar.',impacto:'alto',
+       porques:['No quiero limitar la operación','Creo que el precio va a volver','No acepto la pérdida hasta que es mayor','Me cuesta ejecutar el plan bajo presión','Busco control en lugar de disciplina'],
+       solucion:'Regla no negociable: SL en plataforma antes de confirmar la entrada.',progreso:20},
+      {id:2,titulo:'Lotaje Constante',desc:'No aumentar tamaño después de pérdidas.',impacto:'alto',
+       porques:['Quiero recuperar lo perdido rápido','Siento frustración y necesidad de actuar','No tengo regla de lotaje fija','Creo que la próxima operación "seguro gana"','No calculo el riesgo real del lote'],
+       solucion:'2 pérdidas seguidas → siguiente trade al 50% del lote estándar.',progreso:35},
+      {id:3,titulo:'Regla de 3 Stops',desc:'Cerrar plataforma al tercer stop consecutivo.',impacto:'alto',
+       porques:['Creo que la siguiente será diferente','No acepto cerrar en negativo','No tengo límite de pérdida diaria','El mercado "me debe" una ganancia','Opero por emoción, no por plan'],
+       solucion:'3 pérdidas seguidas = fin de sesión. Sin excepciones ni negociaciones.',progreso:10},
+      {id:4,titulo:'Solo Setups A+',desc:'Entrar únicamente cuando se cumplen todos los criterios.',impacto:'medio',
+       porques:['Tengo miedo a perder una oportunidad','Me aburro sin operar','No tengo los criterios bien definidos','Confundo actividad con productividad','No escribo el plan antes de operar'],
+       solucion:'Escribir el setup antes de entrar. Si no encaja 100% → esperar.',progreso:50},
+      {id:5,titulo:'Ratio Mínimo 1:3',desc:'No entrar si el R:R potencial es menor a 1:3.',impacto:'medio',
+       porques:['El setup parece bueno igual','Calculo el ratio "a ojo"','No mido la distancia al SL y al target','Confundo probabilidad con R:R','Priorizo el WR sobre el resultado neto'],
+       solucion:'Calcular el ratio en el gráfico antes de cada entrada. Si <1:3 → no entrar.',progreso:60},
+    ];
+    const editId = state.smbEditPilar;
+
+    return subNav + `
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px">
+      ${['Registrar','Priorizar','5 Porqués','Solución','Victorias'].map((t,i)=>`
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center">
+        <div style="color:var(--accent);font-size:18px;font-weight:900">${i+1}</div>
+        <div style="color:var(--text);font-size:9px;font-weight:700">${t}</div>
+      </div>`).join('')}
+    </div>
+
+    ${pilares.map(p=>{
+      const isEditing = editId === p.id;
+      const prog = p.progreso || 0;
+      const progColor = prog>=70?'var(--green)':prog>=40?'var(--yellow)':'var(--red)';
+      return `
+      <div style="background:var(--bg3);border:1px solid ${impColors[p.impacto]}40;border-radius:12px;padding:14px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div style="flex:1">
+            <div style="color:var(--text);font-size:13px;font-weight:700">${p.titulo}</div>
+            <div style="color:var(--text3);font-size:11px;margin-top:2px">${p.desc}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;margin-left:8px">
+            <span style="background:${impColors[p.impacto]}20;color:${impColors[p.impacto]};border-radius:4px;padding:2px 7px;font-size:10px;font-weight:700">${p.impacto}</span>
+            <button onclick="togglePilarEdit(${p.id})" style="background:var(--bg4);border:1px solid var(--border2);color:var(--text3);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer">${isEditing?'✕':'✏️'}</button>
+          </div>
+        </div>
+
+        ${isEditing ? `
+        <div>
+          <div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">5 Porqués (raíz del problema)</div>
+          ${p.porques.map((w,j)=>`
+          <div class="why-row">
+            <div class="why-arrow">${j+1}→</div>
+            <input class="why-input" id="pilar-why-${p.id}-${j}" value="${w}" placeholder="¿Por qué ${j+1}?"/>
+          </div>`).join('')}
+          <div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin:10px 0 4px">Solución concreta</div>
+          <textarea id="pilar-sol-${p.id}" class="pb-textarea" style="min-height:55px">${p.solucion}</textarea>
+          <div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin:10px 0 4px">Progreso: <span style="color:${progColor}">${prog}%</span></div>
+          <input type="range" id="pilar-prog-${p.id}" min="0" max="100" value="${prog}" style="width:100%;accent-color:var(--accent)">
+          <button class="btn-primary" style="margin-top:10px" onclick="savePilar(${p.id})">Guardar cambios</button>
+        </div>` : `
+        <div>
+          <div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">5 Porqués</div>
+          ${p.porques.map((w,j)=>`<div style="color:var(--text2);font-size:11px;padding:2px 0 2px 6px">${j+1}→ ${w}</div>`).join('')}
+          <div style="background:var(--bg);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:7px 10px;margin-top:8px">
+            <div style="color:var(--accent2);font-size:10px;font-weight:700;margin-bottom:2px">💡 REGLA</div>
+            <div style="color:var(--text2);font-size:11px">${p.solucion}</div>
+          </div>
+          <div style="margin-top:10px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+              <span style="color:var(--text3);font-size:10px">Progreso</span>
+              <span style="color:${progColor};font-size:10px;font-weight:700">${prog}%</span>
+            </div>
+            <div style="background:var(--bg4);border-radius:4px;height:5px">
+              <div style="background:${progColor};height:5px;border-radius:4px;width:${prog}%"></div>
+            </div>
+          </div>
+        </div>`}
+      </div>`;
+    }).join('')}`;
+  }
+
+  // ── REGISTRAR ──
+  if(sub==='registrar'){
+    return subNav + `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="card-title" style="margin:0">📋 Registrar error</div>
+        <button class="btn-secondary" onclick="toggleSMBForm()" style="${state.smbShowForm?'background:var(--accent);color:#fff':''}">
+          ${state.smbShowForm?'Cancelar':'+ Nuevo'}
+        </button>
+      </div>
+
+      ${state.smbShowForm ? `
+      <div>
+        <div style="color:var(--text3);font-size:11px;margin-bottom:4px">Describe el error</div>
+        <textarea id="smb-error" class="pb-textarea" style="min-height:60px" placeholder="Ej: Moví el SL en contra para evitar la pérdida...">${state.smbError}</textarea>
+        <div style="color:var(--text3);font-size:11px;margin:8px 0 4px">Impacto</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px">
+          ${['alto','medio','bajo'].map(v=>`
+          <button onclick="setSMBImpact('${v}')" style="flex:1;padding:5px 0;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;background:${state.smbImpact===v?impColors[v]:'var(--bg4)'};color:${state.smbImpact===v?'#fff':'var(--text3)'}">${v}</button>`).join('')}
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="color:var(--text3);font-size:11px">${state.smbWhyCount} Porqués</div>
+          <div class="why-count-btns">${[2,3,4,5].map(n=>`
+            <button class="wc-btn ${state.smbWhyCount===n?'active':''}" onclick="setWhyCount(${n})">${n}</button>`).join('')}
+          </div>
+        </div>
+        ${Array.from({length:state.smbWhyCount}).map((_,j)=>`
+        <div class="why-row">
+          <div class="why-arrow">→</div>
+          <input class="why-input" id="why-${j}" value="${state.smbWhys[j]||''}" placeholder="¿Por qué ${j+1}?" oninput="updateWhy(${j},this.value)"/>
+        </div>`).join('')}
+        <div style="color:var(--text3);font-size:11px;margin:8px 0 4px">Solución concreta</div>
+        <textarea id="smb-sol" class="pb-textarea" style="min-height:55px" placeholder="Regla específica a implementar...">${state.smbSolution}</textarea>
+        <button class="btn-primary" style="margin-top:10px" onclick="saveSMBReport()">Guardar reporte</button>
+      </div>` : ''}
+
+      ${state.smbReports.length>0 ? `
+      <div style="margin-top:${state.smbShowForm?'16px':'0'}">
+        <div style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Historial de reportes</div>
+        ${state.smbReports.map(r=>`
+        <div class="report-item" style="border-color:${impColors[r.impact]}">
+          <div style="display:flex;justify-content:space-between">
+            <div style="color:var(--text);font-size:12px;font-weight:700">${r.error}</div>
+            <div style="color:var(--text4);font-size:10px;white-space:nowrap;margin-left:6px">${r.date}</div>
+          </div>
+          ${r.whys.filter(w=>w).map(w=>`<div style="color:var(--text3);font-size:11px;padding-left:6px">→ ${w}</div>`).join('')}
+          ${r.solution?`<div style="color:var(--accent2);font-size:11px;margin-top:4px">💡 ${r.solution}</div>`:''}
+        </div>`).join('')}
+      </div>` : `<div style="color:var(--text4);font-size:12px;text-align:center;padding:16px 0">Sin reportes aún. Registrá tu primer error para aprender de él.</div>`}
+    </div>`;
+  }
+
+  // ── VICTORIAS ──
+  return subNav + `
+  <div class="card" style="border-color:#22c55e30">
+    <div style="color:var(--green);font-weight:700;font-size:14px;margin-bottom:4px">🏆 Pequeñas victorias</div>
+    <div style="color:var(--text3);font-size:11px;margin-bottom:12px">Registrá cada vez que cumpliste una regla difícil. El momentum se construye paso a paso.</div>
+    <div class="add-row">
+      <input class="add-input" id="victory-input" placeholder="Ej: Hoy puse SL en todas las operaciones..." value="${state.newVictory}" oninput="state.newVictory=this.value"/>
+      <button class="add-btn" onclick="addVictory()">+</button>
+    </div>
+    ${state.smbVictories.length===0
+      ? `<div style="color:var(--text4);font-size:12px;text-align:center;padding:16px">Registrá tu primera pequeña victoria hoy.</div>`
+      : state.smbVictories.map(v=>`
+    <div class="victory-row">
+      <span class="vict-txt">✓ ${v.text}</span>
+      <span class="vict-date">${v.date}</span>
+    </div>`).join('')}
+  </div>
+
+  <div class="card" style="margin-top:4px">
+    <div style="color:var(--text2);font-size:12px;font-weight:700;margin-bottom:8px">📈 Tu progreso global</div>
+    ${(state.smbPilares||[]).length===0
+      ? `<div style="color:var(--text4);font-size:12px">Aún no hay pilares con progreso registrado.</div>`
+      : (state.smbPilares||[]).map(p=>{
+          const prog = p.progreso||0;
+          const col = prog>=70?'var(--green)':prog>=40?'var(--yellow)':'var(--red)';
+          return `<div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+              <span style="color:var(--text2);font-size:12px">${p.titulo}</span>
+              <span style="color:${col};font-size:11px;font-weight:700">${prog}%</span>
+            </div>
+            <div style="background:var(--bg4);border-radius:4px;height:6px">
+              <div style="background:${col};height:6px;border-radius:4px;width:${prog}%;transition:width .4s"></div>
+            </div>
+          </div>`;
+        }).join('')}
+  </div>`;
+}
+
+function setSMBSub(s){state.smbSub=s;render();}
+function togglePilarEdit(id){state.smbEditPilar = state.smbEditPilar===id ? null : id; render();}
+
+function savePilar(id){
+  const pilares = state.smbPilares || [];
+  const idx = pilares.findIndex(p=>p.id===id);
+  if(idx===-1) return;
+  const porques = Array.from({length:5}).map((_,j)=>{
+    const el = document.getElementById(`pilar-why-${id}-${j}`);
+    return el ? el.value.trim() : pilares[idx].porques[j]||'';
+  }).filter(w=>w);
+  const solEl = document.getElementById(`pilar-sol-${id}`);
+  const progEl = document.getElementById(`pilar-prog-${id}`);
+  pilares[idx] = {
+    ...pilares[idx],
+    porques,
+    solucion: solEl ? solEl.value.trim() : pilares[idx].solucion,
+    progreso: progEl ? parseInt(progEl.value) : pilares[idx].progreso,
+  };
+  state.smbPilares = pilares;
+  state.smbEditPilar = null;
+  ss('smbPilares', pilares);
+  render();
+}
+
+
+// ── DATOS ────────────────────────────────────────────────────────────
+function renderDatos(){
+  return `
+  <div class="card">
+    <div class="card-title" style="margin-bottom:4px">⬆️ Cargar CSV de Exness</div>
+    <div style="color:#6b7280;font-size:12px;margin-bottom:12px">Reemplaza los datos actuales. El CSV debe ser el historial de operaciones cerradas exportado desde Exness.</div>
+
+    <div style="color:#94a3b8;font-size:11px;margin-bottom:6px;font-weight:700">🔴 CUENTA REAL</div>
+    <div class="upload-zone" onclick="document.getElementById('file-input-real').click()" id="drop-real">
+      <div class="uz-icon">📂</div>
+      <div class="uz-title">Seleccionar archivo CSV</div>
+      <div class="uz-sub">Cuenta real de Exness</div>
+    </div>
+    <input type="file" id="file-input-real" accept=".csv" onchange="loadCSV(this.files[0],'real')"/>
+
+    <div style="color:#94a3b8;font-size:11px;margin:14px 0 6px;font-weight:700">🔵 CUENTA DEMO</div>
+    <div class="upload-zone" onclick="document.getElementById('file-input-demo').click()" id="drop-demo">
+      <div class="uz-icon">📂</div>
+      <div class="uz-title">Seleccionar archivo CSV</div>
+      <div class="uz-sub">Cuenta demo de Exness</div>
+    </div>
+    <input type="file" id="file-input-demo" accept=".csv" onchange="loadCSV(this.files[0],'demo')"/>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:8px">ℹ️ Datos actuales cargados</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:#94a3b8;font-size:12px">🔴 Real</span>
+        <span style="color:#6b7280;font-size:11px">${state.realData.summary.total_trades} trades · ${fmtP(state.realData.summary.total_profit)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="color:#94a3b8;font-size:12px">🔵 Demo</span>
+        <span style="color:#6b7280;font-size:11px">${state.demoData.summary.total_trades} trades · ${fmtP(state.demoData.summary.total_profit)}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:8px">📋 Cómo exportar desde Exness</div>
+    ${['1. Abrí Exness → Área de clientes','2. Ir a Historial de trading','3. Seleccioná el período completo','4. Exportar → CSV','5. Cargá el archivo aquí arriba'].map((s,i)=>`
+    <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px">
+      <div style="color:#4f46e5;font-weight:700;font-size:12px;min-width:16px">${i+1}.</div>
+      <div style="color:#94a3b8;font-size:12px">${s.replace(/^\d\. /,'')}</div>
+    </div>`).join('')}
+  </div>
+
+  <div class="card" style="border-color:#818cf840">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <div class="card-title" style="margin-bottom:0">🤖 Prompt para IA</div>
+      <button onclick="copyPromptToClipboard()" id="copy-btn"
+        style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer">
+        📋 Copiar
+      </button>
+    </div>
+    <div style="color:var(--text4);font-size:11px;margin-bottom:10px">
+      Copiá este texto y pegalo en Claude, Gemini o cualquier IA para analizar tus datos.
+    </div>
+    <textarea id="ia-prompt-box" readonly
+      style="width:100%;height:220px;background:var(--bg);color:var(--text3);border:1px solid var(--border2);border-radius:8px;padding:10px;font-size:10px;font-family:monospace;resize:none;line-height:1.6"
+    >${generatePromptText()}</textarea>
+  </div>`;
+}
+
+// ── PROMPT GENERATOR ─────────────────────────────────────────────────
+function generatePromptText(){
+  const r = state.realData, d = state.demoData;
+  const rs = r.summary, ds = d.summary;
+  const fecha = new Date().toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+
+  const monthRow = (m) =>
+    `  ${m.month}  ${String(m.trades).padStart(4)}t  P&L ${String('$'+Math.round(m.profit)).padStart(9)}  WR ${String(m.wr+'%').padStart(5)}  SL ${String(m.sl_pct+'%').padStart(5)}  LoteM ${m.avg_lot}`;
+
+  const weekRow = (w) =>
+    `  ${w.week}  ${String(w.trades).padStart(4)}t  P&L ${String('$'+Math.round(w.profit)).padStart(9)}  WR ${w.wr}%`;
+
+  return `Soy trader y quiero que analices mis datos reales. Generá un diagnóstico honesto y un plan de acción concreto.
+
+━━━ CUENTA REAL (${fecha}) ━━━
+Trades: ${rs.total_trades} | P&L: $${rs.total_profit} | WR: ${rs.win_rate}% | Avg/trade: $${rs.avg_profit}
+SL usado: ${rs.sl_pct}% | Lote med: ${rs.avg_lot} | Lote máx: ${rs.max_lot}
+Con SL → WR ${rs.with_sl_wr}%, avg $${rs.with_sl_avg} | Sin SL → WR ${rs.no_sl_wr}%, avg $${rs.no_sl_avg}
+
+Detalle mensual:
+${r.monthly.map(monthRow).join('\n')}
+
+Detalle semanal (últimas semanas):
+${(r.weekly||[]).slice(-8).map(weekRow).join('\n')}
+
+━━━ CUENTA DEMO ━━━
+Trades: ${ds.total_trades} | P&L: $${ds.total_profit} | WR: ${ds.win_rate}% | Avg/trade: $${ds.avg_profit}
+SL usado: ${ds.sl_pct}% | Lote med: ${ds.avg_lot} | Lote máx: ${ds.max_lot}
+Con SL → WR ${ds.with_sl_wr}%, avg $${ds.with_sl_avg} | Sin SL → WR ${ds.no_sl_wr}%, avg $${ds.no_sl_avg}
+
+Detalle mensual (últimos 6):
+${d.monthly.slice(-6).map(monthRow).join('\n')}
+
+━━━ MI PLAYBOOK ━━━
+Gestión: ${(state.playbook.gestion||'').replace(/\*\*/g,'').substring(0,400)}
+Setups: ${(state.playbook.setups||'').replace(/\*\*/g,'').substring(0,300)}
+
+━━━ LO QUE NECESITO ━━━
+1. Diagnóstico principal (qué está fallando con números)
+2. Patrones detectados (bien y mal)
+3. Riesgos inmediatos
+4. Plan de acción: 3 cambios concretos para esta semana
+5. Comparativa real vs demo: qué puedo aprender de mi demo`;
+}
+
+function copyPromptToClipboard(){
+  const box = document.getElementById('ia-prompt-box');
+  if(!box) return;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(box.value).then(()=>{
+      const btn = document.getElementById('copy-btn');
+      if(btn){ btn.textContent='✅ Copiado'; setTimeout(()=>{ btn.textContent='📋 Copiar'; },2000); }
+    });
+  } else {
+    box.select();
+    document.execCommand('copy');
+    const btn = document.getElementById('copy-btn');
+    if(btn){ btn.textContent='✅ Copiado'; setTimeout(()=>{ btn.textContent='📋 Copiar'; },2000); }
+  }
+}
+
+// ── IA ────────────────────────────────────────────────────────────────
+function buildTradingContext(){
+  const r = state.realData, d = state.demoData;
+  const rs = r.summary, ds = d.summary;
+  return `Sos un coach de trading experto analizando los datos reales de un trader.
+
+=== CUENTA REAL ===
+- Total trades: ${rs.total_trades} | P&L total: $${rs.total_profit} | Win Rate: ${rs.win_rate}%
+- Avg profit/trade: $${rs.avg_profit} | SL usado: ${rs.sl_pct}% | Lote medio: ${rs.avg_lot} | Lote máx: ${rs.max_lot}
+- Con SL → WR ${rs.with_sl_wr}%, avg $${rs.with_sl_avg} | Sin SL → WR ${rs.no_sl_wr}%, avg $${rs.no_sl_avg}
+Meses recientes:
+${r.monthly.slice(-6).map(m=>`  ${m.month}: ${m.trades} trades, P&L $${m.profit}, WR ${m.wr}%, SL ${m.sl_pct}%, lote med ${m.avg_lot}`).join('\n')}
+
+=== CUENTA DEMO ===
+- Total trades: ${ds.total_trades} | P&L total: $${ds.total_profit} | Win Rate: ${ds.win_rate}%
+- Avg profit/trade: $${ds.avg_profit} | SL usado: ${ds.sl_pct}% | Lote medio: ${ds.avg_lot}
+- Con SL → WR ${ds.with_sl_wr}%, avg $${ds.with_sl_avg} | Sin SL → WR ${ds.no_sl_wr}%, avg $${ds.no_sl_avg}
+Meses recientes:
+${d.monthly.slice(-6).map(m=>`  ${m.month}: ${m.trades} trades, P&L $${m.profit}, WR ${m.wr}%, SL ${m.sl_pct}%`).join('\n')}
+
+=== PLAYBOOK DEL TRADER ===
+Gestión de riesgo: ${state.playbook.gestion?.substring(0,300)||'No definido'}
+Setups: ${state.playbook.setups?.substring(0,200)||'No definido'}
+
+Respondé siempre en español, de forma directa y accionable. Usá emojis moderadamente. Basá todo análisis en los datos reales del trader.`;
+}
+
+async function iaRunAnalysis(){
+  if(!state.iaApiKey){ alert('Ingresá tu API Key de Anthropic primero.'); return; }
+  state.iaAnalysisLoading = true;
+  state.iaAnalysis = null;
+  render();
+
+  const systemCtx = buildTradingContext();
+  const prompt = `Analizá en profundidad los datos de trading de esta persona y generá un informe estructurado con:
+1. 🎯 DIAGNÓSTICO PRINCIPAL (2-3 líneas del problema más crítico)
+2. 📊 PATRONES DETECTADOS (qué está haciendo bien y mal, con números concretos)
+3. ⚠️ RIESGOS INMEDIATOS (lo que podría destruir la cuenta si continúa)
+4. ✅ PLAN DE ACCIÓN (3 cambios concretos y medibles para las próximas 2 semanas)
+5. 💡 COMPARATIVA REAL vs DEMO (qué puede aprender de su demo para aplicar en real)
+
+Sé directo, usa los números reales, no suavices los problemas.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':state.iaApiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:1500,
+        system: systemCtx,
+        messages:[{role:'user', content: prompt}]
+      })
+    });
+    const data = await res.json();
+    if(data.error){ state.iaAnalysis = '❌ Error: ' + data.error.message; }
+    else { state.iaAnalysis = data.content?.[0]?.text || '—'; }
+  } catch(e) {
+    state.iaAnalysis = '❌ Error de conexión: ' + e.message;
+  }
+  state.iaAnalysisLoading = false;
+  render();
+}
+
+async function iaSendMessage(){
+  if(!state.iaApiKey){ alert('Ingresá tu API Key de Anthropic primero.'); return; }
+  const el = document.getElementById('ia-input');
+  const txt = el ? el.value.trim() : '';
+  if(!txt) return;
+
+  state.iaMessages = [...state.iaMessages, {role:'user', content: txt}];
+  state.iaLoading = true;
+  if(el) el.value = '';
+  render();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':state.iaApiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:800,
+        system: buildTradingContext(),
+        messages: state.iaMessages
+      })
+    });
+    const data = await res.json();
+    const reply = data.error ? ('❌ ' + data.error.message) : (data.content?.[0]?.text || '—');
+    state.iaMessages = [...state.iaMessages, {role:'assistant', content: reply}];
+  } catch(e) {
+    state.iaMessages = [...state.iaMessages, {role:'assistant', content:'❌ Error: '+e.message}];
+  }
+  state.iaLoading = false;
+  render();
+  // scroll chat to bottom
+  setTimeout(()=>{ const c=document.getElementById('ia-chat'); if(c) c.scrollTop=c.scrollHeight; }, 50);
+}
+
+function iaClearChat(){ state.iaMessages=[]; state.iaAnalysis=null; render(); }
+
+function renderIA(){
+  const hasKey = !!state.iaApiKey;
+
+  // format analysis text: bold **text**, newlines
+  const fmtAI = (txt) => txt
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--text)">$1</strong>')
+    .replace(/\n/g,'<br>');
+
+  return `
+  <!-- API KEY SETUP -->
+  <div class="card" style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="card-title" style="margin-bottom:0">🔑 API Key Anthropic</div>
+      ${hasKey?`<span class="badge green">Conectado</span>`:`<span class="badge red">Sin clave</span>`}
+    </div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <input id="ia-key-input" type="password" placeholder="sk-ant-api03-..." value="${state.iaApiKey}"
+        style="flex:1;background:var(--bg4);color:var(--text2);border:1px solid var(--border2);border-radius:8px;padding:8px 10px;font-size:12px">
+      <button onclick="(()=>{const v=document.getElementById('ia-key-input').value.trim();if(v){state.iaApiKey=v;ss('iaApiKey',v);render();}})()"
+        style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">Guardar</button>
+    </div>
+    <div style="color:var(--text4);font-size:10px;margin-top:6px">Tu clave se guarda solo en este dispositivo (localStorage). Obtenela en console.anthropic.com</div>
+  </div>
+
+  <!-- AUTO ANALYSIS -->
+  <div class="card" style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div>
+        <div class="card-title" style="margin-bottom:2px">📊 Análisis Automático</div>
+        <div style="color:var(--text4);font-size:10px">IA analiza todos tus datos y genera un informe</div>
+      </div>
+      <button onclick="iaRunAnalysis()"
+        style="background:${hasKey?'var(--accent)':'var(--bg4)'};color:${hasKey?'#fff':'var(--text4)'};border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:${hasKey?'pointer':'default'};white-space:nowrap">
+        ${state.iaAnalysisLoading?'⏳ Analizando...':'✨ Analizar'}
+      </button>
+    </div>
+
+    ${state.iaAnalysisLoading
+      ? `<div style="text-align:center;padding:24px 0">
+          <div style="font-size:28px;margin-bottom:8px">🤖</div>
+          <div style="color:var(--text3);font-size:12px">Analizando tus ${state.realData.summary.total_trades} operaciones...</div>
+          <div style="color:var(--text4);font-size:10px;margin-top:4px">Esto toma unos segundos</div>
+        </div>`
+      : state.iaAnalysis
+        ? `<div style="background:var(--bg);border-radius:8px;padding:12px;font-size:12px;color:var(--text2);line-height:1.7;border-left:3px solid var(--accent)">
+            ${fmtAI(state.iaAnalysis)}
+           </div>
+           <button onclick="state.iaAnalysis=null;render()" style="margin-top:8px;background:var(--bg4);color:var(--text3);border:1px solid var(--border2);border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer">✕ Limpiar</button>`
+        : `<div style="color:var(--text4);font-size:12px;text-align:center;padding:16px 0">
+            ${hasKey?'Presioná "Analizar" para que la IA revise todos tus datos de trading':'Ingresá tu API Key para activar el análisis'}
+           </div>`
+    }
+  </div>
+
+  <!-- CHAT -->
+  <div class="card" style="margin-bottom:0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div>
+        <div class="card-title" style="margin-bottom:2px">💬 Chat con IA</div>
+        <div style="color:var(--text4);font-size:10px">Preguntale cualquier cosa sobre tus operaciones</div>
+      </div>
+      ${state.iaMessages.length?`<button onclick="iaClearChat()" style="background:var(--bg4);color:var(--text3);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">🗑 Limpiar</button>`:''}
+    </div>
+
+    <!-- Suggested questions (only when chat is empty) -->
+    ${!state.iaMessages.length ? `
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;color:var(--text4);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px">Preguntas sugeridas</div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        ${[
+          '¿Cuál es mi mayor error de trading según los datos?',
+          '¿En qué mes tuve mejor desempeño y por qué?',
+          '¿Debería seguir operando en real o solo en demo?',
+          '¿Cómo mejorar mi Win Rate en real?',
+          '¿Qué me dice la diferencia entre real y demo?'
+        ].map(q=>`<button onclick="(()=>{if(!state.iaApiKey){alert('Ingresá tu API Key primero.');return;}state.iaMessages=[...state.iaMessages,{role:'user',content:'${q.replace(/'/g,"\\'")}'}];state.iaLoading=true;render();fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':state.iaApiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,system:buildTradingContext(),messages:[{role:'user',content:'${q.replace(/'/g,"\\'")}'}]})}).then(r=>r.json()).then(d=>{const reply=d.error?('❌ '+d.error.message):(d.content?.[0]?.text||'—');state.iaMessages=[...state.iaMessages,{role:'assistant',content:reply}];state.iaLoading=false;render();setTimeout(()=>{const c=document.getElementById('ia-chat');if(c)c.scrollTop=c.scrollHeight;},50);}).catch(e=>{state.iaMessages=[...state.iaMessages,{role:'assistant',content:'❌ Error: '+e.message}];state.iaLoading=false;render();})})()"
+              style="background:var(--bg4);color:var(--text3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:11px;cursor:pointer;text-align:left;line-height:1.4">
+              ${q}
+            </button>`).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- Chat messages -->
+    ${state.iaMessages.length ? `
+    <div id="ia-chat" style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px;padding-right:2px">
+      ${state.iaMessages.map(m=>`
+        <div style="display:flex;justify-content:${m.role==='user'?'flex-end':'flex-start'}">
+          <div style="max-width:85%;padding:9px 12px;border-radius:${m.role==='user'?'12px 12px 3px 12px':'12px 12px 12px 3px'};
+            background:${m.role==='user'?'var(--accent)':'var(--bg4)'};
+            color:${m.role==='user'?'#fff':'var(--text2)'};
+            font-size:12px;line-height:1.6;border:1px solid ${m.role==='user'?'transparent':'var(--border)'}">
+            ${m.role==='assistant' ? fmtAI(m.content) : m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+          </div>
+        </div>`).join('')}
+      ${state.iaLoading?`
+        <div style="display:flex;justify-content:flex-start">
+          <div style="padding:9px 14px;border-radius:12px 12px 12px 3px;background:var(--bg4);border:1px solid var(--border)">
+            <div style="display:flex;gap:4px;align-items:center">
+              <div style="width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:pulse 1s infinite"></div>
+              <div style="width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:pulse 1s .2s infinite"></div>
+              <div style="width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:pulse 1s .4s infinite"></div>
+            </div>
+          </div>
+        </div>`:''
+      }
+    </div>` : ''}
+
+    <!-- Input -->
+    <div style="display:flex;gap:6px;align-items:flex-end">
+      <textarea id="ia-input" placeholder="${hasKey?'Preguntá sobre tus operaciones...':'Ingresá tu API Key para chatear'}"
+        ${!hasKey?'disabled':''} rows="2"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();iaSendMessage();}"
+        style="flex:1;background:var(--bg4);color:var(--text2);border:1px solid var(--border2);border-radius:8px;padding:8px 10px;font-size:12px;resize:none;font-family:inherit;line-height:1.5;${!hasKey?'opacity:.5':''}"></textarea>
+      <button onclick="iaSendMessage()"
+        ${!hasKey||state.iaLoading?'disabled':''}
+        style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 14px;font-size:16px;cursor:${hasKey&&!state.iaLoading?'pointer':'default'};opacity:${hasKey&&!state.iaLoading?1:.5};flex-shrink:0">➤</button>
+    </div>
+    <div style="color:var(--text4);font-size:10px;margin-top:5px">Enter para enviar · Shift+Enter para nueva línea</div>
+  </div>
+
+  <style>
+    @keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:1} }
+  </style>`;
+}
+
+function toggleSMBForm(){state.smbShowForm=!state.smbShowForm;render();}
+function setSMBImpact(v){state.smbImpact=v;render();}
+function setWhyCount(n){state.smbWhyCount=n;render();}
+function updateWhy(i,v){state.smbWhys[i]=v;}
+
+function saveSMBReport(){
+  const errorEl = document.getElementById('smb-error');
+  const solEl = document.getElementById('smb-sol');
+  const error = errorEl ? errorEl.value.trim() : state.smbError;
+  const solution = solEl ? solEl.value.trim() : state.smbSolution;
+  if(!error) return;
+  const whys = [];
+  for(let i=0;i<state.smbWhyCount;i++){
+    const el = document.getElementById(`why-${i}`);
+    whys.push(el ? el.value.trim() : (state.smbWhys[i]||''));
+  }
+  const report = {id:Date.now(),date:today(),error,impact:state.smbImpact,whys:whys.filter(w=>w),solution};
+  state.smbReports = [report, ...state.smbReports];
+  ss('smbReports', state.smbReports);
+  state.smbError=''; state.smbSolution=''; state.smbWhys=['','','','',''];
+  state.smbShowForm=false;
+  render();
+}
+
+function addVictory(){
+  const el = document.getElementById('victory-input');
+  const text = el ? el.value.trim() : state.newVictory.trim();
+  if(!text) return;
+  const v = {id:Date.now(),date:today(),text};
+  state.smbVictories = [v, ...state.smbVictories];
+  ss('smbVictories', state.smbVictories);
+  state.newVictory='';
+  render();
+}
+
+function loadCSV(file, account){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const rows = parseCSV(e.target.result);
+      const processed = processRows(rows);
+      if(account==='real'){
+        state.realData = processed;
+        state.realDaily = processed.daily || {};
+        ss('realData', processed);
+        ss('realDaily', state.realDaily);
+      } else {
+        state.demoData = processed;
+        state.demoDaily = processed.daily || {};
+        ss('demoData', processed);
+        ss('demoDaily', state.demoDaily);
+      }
+      // Update header
+      document.getElementById('hdr-real').textContent = `Real: ${fmtP(state.realData.summary.total_profit)}`;
+      document.getElementById('hdr-demo').textContent = `Demo: ${fmtP(state.demoData.summary.total_profit)}`;
+      alert(`✅ ${account==='real'?'Real':'Demo'} actualizado: ${processed.summary.total_trades} operaciones cargadas.`);
+      render();
+    } catch(err) {
+      alert('❌ Error leyendo el CSV. Asegurate de exportar desde Exness como CSV estándar.\n'+err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════
+render();
+
+// Service Worker para PWA
+if('serviceWorker' in navigator){
+  const swCode = `
+    const CACHE='trading-pb-v1';
+    self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['.']))));
+    self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{
+      const clone=res.clone();
+      caches.open(CACHE).then(c=>c.put(e.request,clone));
+      return res;
+    }))));
+  `;
+  const blob = new Blob([swCode],{type:'application/javascript'});
+  const url = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(url).catch(()=>{});
+}
+</script>
+</body>
+</html>
