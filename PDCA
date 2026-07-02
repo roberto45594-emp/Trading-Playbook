@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDCA Tracker - Ingeniero de Mantenimiento</title>
+    <style>
+        /* BASE & VARIABLES (Tema Oscuro Funcional) */
+        :root {
+            --bg-main: #0F1419;
+            --bg-card: #1A2129;
+            --bg-input: #242C34;
+            --text-main: #E5E7EB;
+            --text-muted: #9CA3AF;
+            --color-verde: #10B981;
+            --color-amarillo: #F59E0B;
+            --color-rojo: #EF4444;
+            --color-azul: #3B82F6;
+            --color-gris: #6B7280;
+            --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+            --font-sans: system-ui, -apple-system, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            padding-bottom: 60px;
+            line-height: 1.5;
+        }
+
+        .mono { font-family: var(--font-mono); }
+        hr { border: 0; border-top: 1px solid #2D3748; margin: 20px 0; }
+
+        /* CONTENEDORES Y NAVEGACIÓN */
+        .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 15px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        .nav-tabs {
+            display: flex;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px 15px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+            white-space: nowrap;
+            transition: background 0.2s, color 0.2s;
+        }
+        .tab-btn.active {
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            border-bottom: 3px solid var(--color-azul);
+        }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        /* TARJETAS Y COMPONENTES UI */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .card-title { font-size: 1.1rem; margin-bottom: 15px; color: var(--text-main); font-weight: 700; }
+
+        /* GRID DE MÉTRICAS */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        @media(min-width: 600px) { .metrics-grid { grid-template-columns: repeat(4, 1fr); } }
+        .metric-box {
+            background-color: var(--bg-input);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .metric-val { font-size: 1.4rem; font-weight: bold; font-family: var(--font-mono); }
+        .metric-lbl { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
+
+        /* INDICADOR SEMÁFORO GRANDE */
+        .semaforo-banner {
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* FORMULARIOS */
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
+        .form-control {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid #343A40;
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .form-control:focus { outline: none; border-color: var(--color-azul); }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--color-azul);
+            border: none;
+            color: white;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+        }
+        .btn:active { opacity: 0.9; }
+        .btn-success { background-color: var(--color-verde); }
+        .btn-secondary { background-color: var(--color-gris); }
+
+        /* LISTA DE ACTIVIDADES (DO) */
+        .activity-item {
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            background-color: var(--bg-input);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+        @media(min-width: 500px) {
+            .activity-item { flex-direction: row; justify-content: space-between; align-items: center; }
+        }
+        .activity-info { flex: 1; }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        .bg-estrategica { background-color: rgba(59, 130, 246, 0.2); color: #60A5FA; border: 1px solid #3B82F6; }
+        .bg-operativa { background-color: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid #10B981; }
+        .bg-emergencia { background-color: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid #EF4444; }
+        .bg-distraccion { background-color: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid #F59E0B; }
+
+        .status-actions { display: flex; gap: 5px; }
+        .status-btn {
+            flex: 1;
+            padding: 6px 8px;
+            border: 1px solid #343A40;
+            background-color: var(--bg-card);
+            color: var(--text-muted);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .status-btn.active[data-status="no_iniciada"] { background: var(--color-gris); color: white; }
+        .status-btn.active[data-status="en_proceso"] { background: var(--color-amarillo); color: black; }
+        .status-btn.active[data-status="realizada"] { background: var(--color-verde); color: white; }
+
+        /* GRÁFICOS CSS MINIMALISTAS */
+        .chart-bar-container { background-color: var(--bg-input); border-radius: 4px; height: 10px; width: 100%; overflow: hidden; margin-top: 5px; }
+        .chart-bar-fill { height: 100%; width: 0%; transition: width 0.4s ease; }
+
+        /* HISTORIAL */
+        .history-item {
+            border-left: 4px solid var(--color-gris);
+            padding-left: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            background: var(--bg-input);
+            padding: 10px;
+            border-radius: 0 6px 6px 0;
+        }
+
+        /* COACH AUTOMÁTICO */
+        .coach-box {
+            background-color: rgba(59,130,246,0.1);
+            border-left: 4px solid var(--color-azul);
+            padding: 12px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 15px;
+        }
+        .coach-msg { font-size: 0.9rem; margin-bottom: 8px; line-height: 1.4; color: var(--text-main); }
+        .coach-msg:last-child { margin-bottom: 0; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div>
+                <h1 style="font-size: 1.3rem; font-weight: 800;">⚙️ PDCA METRICS</h1>
+                <p id="current-date-lbl" class="mono" style="color: var(--text-muted); font-size: 0.85rem;"></p>
+            </div>
+            <div>
+                <button onclick="exportarCSV()" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; width: auto;">📥 CSV</button>
+            </div>
+        </header>
+
+        <!-- NAVEGACIÓN -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('diario')">📱 Ejecución Diaria</button>
+            <button class="tab-btn" onclick="switchTab('analisis')">📊 Tableros de Control</button>
+        </nav>
+
+        <!-- VISTA DIARIA (PLAN, DO, CHECK, ACT, RESUMEN) -->
+        <div id="view-diario" class="view-section active">
+            
+            <!-- RESUMEN EN TIEMPO REAL -->
+            <div id="semaforo-banner" class="semaforo-banner">
+                <span>⚪</span> <span>Sin actividades registradas hoy</span>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-box"><div id="m-plan" class="metric-val">0</div><div class="metric-lbl">Plan</div></div>
+                <div class="metric-box"><div id="m-do" class="metric-val" style="color: var(--color-verde)">0</div><div class="metric-lbl">Do</div></div>
+                <div class="metric-box"><div id="m-wip" class="metric-val" style="color: var(--color-amarillo)">0</div><div class="metric-lbl">WIP</div></div>
+                <div class="metric-box"><div id="m-pct" class="metric-val">0%</div><div class="metric-lbl">% Eficacia</div></div>
+            </div>
+
+            <!-- SECCIÓN PLAN -->
+            <div class="card">
+                <h3 class="card-title">📝 1. PLAN - Registrar Actividades del Turno</h3>
+                <form id="form-actividad" onsubmit="agregarActividad(event)">
+                    <div class="form-group">
+                        <label>Descripción de la Actividad / Tarea</label>
+                        <input type="text" id="act-nombre" class="form-control" placeholder="Ej: Recorrido LSW Áreas Críticas / Cambiar filtro MS-014" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Clasificación / Categoría</label>
+                        <select id="act-categoria" class="form-control">
+                            <option value="Estrategica">🎯 Estratégica (Mejora, Core, PM, LSW)</option>
+                            <option value="Operativa">🔧 Operativa (Mantenimiento diario, Rutinas)</option>
+                            <option value="Emergencia">🚨 Emergencia (Línea parada, Falla imprevista)</option>
+                            <option value="Distracción">⏳ Distracción (Reunión inútil, Burocracia)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success" style="margin-top: 5px;">+ Insertar en Plan Diario</button>
+                </form>
+            </div>
+
+            <!-- SECCIÓN DO -->
+            <div class="card">
+                <h3 class="card-title">⚡ 2. DO / CHECK - Ejecución del Plan</h3>
+                <div id="lista-actividades">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+
+            <!-- SECCIÓN ACT -->
+            <div class="card">
+                <h3 class="card-title">🌱 3. ACT - Cierre de Turno y Retrospectiva</h3>
+                <div class="form-group">
+                    <label>Principal Logro del Día</label>
+                    <input type="text" id="act-logro" class="form-control" placeholder="Ej: Se estabilizó línea B a tiempo">
+                </div>
+                <div class="form-group">
+                    <label>Principal Factor de Distracción</label>
+                    <input type="text" id="act-distractor" class="form-control" placeholder="Ej: Espera de refacciones en almacén">
+                </div>
+                <div class="form-group">
+                    <label>Causa Raíz de Desviación / Incumplimiento</label>
+                    <select id="act-causa" class="form-control">
+                        <option value="Ninguna">Ninguna / Plan Completado</option>
+                        <option value="Emergencia real">🚨 Emergencia Real en Planta</option>
+                        <option value="Cambio de prioridad">🔄 Cambio de Prioridad de Producción</option>
+                        <option value="Falta de tiempo">⏳ Falta de Tiempo / Estimación Incorrecta</option>
+                        <option value="Distracción">📺 Distracción / Carga Administrativa</option>
+                        <option value="Dependencia de tercero">👥 Espera de Proveedor / Tercero</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Acción Correctiva (Kaizen para Mañana)</label>
+                    <input type="text" id="act-correctiva" class="form-control" placeholder="Ej: Proteger bloque de 8:00 a 10:00 para LSW">
+                </div>
+                <button onclick="guardarDiaActual()" class="btn" style="margin-top: 5px;">💾 Archivar Registro Diario en Historial</button>
+            </div>
+
+        </div>
+
+        <!-- VISTA ANÁLISIS E HISTORIAL -->
+        <div id="view-analisis" class="view-section">
+            
+            <!-- COACH AUTOMÁTICO -->
+            <div class="card">
+                <h3 class="card-title">🧠 Lean Coach - Retroalimentación Continua</h3>
+                <div id="coach-container">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+
+            <!-- TABLERO INTERMEDIO (7 Y 30 DIAS) -->
+            <div class="card">
+                <h3 class="card-title">📊 Tablero de Control de Disciplina Operativa</h3>
+                
+                <h4 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">Ciclo Semanal (Últimos 7 días)</h4>
+                <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+                    <div class="metric-box"><div id="sem-pct" class="metric-val mono">-</div><div class="metric-lbl">Cumplimiento</div></div>
+                    <div class="metric-box"><div id="sem-ok" class="metric-val mono" style="color: var(--color-verde)">-</div><div class="metric-lbl">Hechas</div></div>
+                    <div class="metric-box"><div id="sem-fail" class="metric-val mono" style="color: var(--color-rojo)">-</div><div class="metric-lbl">No Hechas</div></div>
+                </div>
+
+                <h4 style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 5px;">Desempeño Mensual (Últimos 30 días)</h4>
+                <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 15px;">
+                    <div class="metric-box"><div id="mes-pct" class="metric-val mono">-</div><div class="metric-lbl">Promedio</div></div>
+                    <div class="metric-box"><div id="mes-est" class="metric-val mono" style="color: var(--color-azul)">-</div><div class="metric-lbl">Terminado Estratégico</div></div>
+                    <div class="metric-box"><div id="mes-status" class="metric-val mono" style="font-size:1.1rem; padding-top:4px;">-</div><div class="metric-lbl">Clasificación</div></div>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <h4 style="font-size: 0.9rem; margin-bottom: 5px;">Distribución de Causas de Desviación (Pareto)</h4>
+                    <div id="pareto-container"></div>
+                </div>
+            </div>
+
+            <!-- LISTADO HISTÓRICO -->
+            <div class="card">
+                <h3 class="card-title">📜 Historial Logueado</h3>
+                <div id="lista-historial">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN DE BASE DE DATOS LOCAL
+        const LOCAL_STORAGE_KEY = "pdca_maintenance_db_2026";
+        let db = {
+            dias: {} // Key: YYYY-MM-DD
+        };
+
+        // FECHA DE TRABAJO (2026 FIJO COMO CONTEXTO)
+        const HOY_ISO = "2026-07-01";
+
+        // Inicialización al cargar la página
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('current-date-lbl').innerText = `Turno: Miércoles, 01 Jul 2026`;
+            
+            const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (saved) {
+                try { db = JSON.parse(saved); } catch(e) { console.error("Error cargando db, reiniciando", e); }
+            }
+
+            // Si el día de hoy no existe en la DB, creamos su nodo limpio
+            if (!db.dias[HOY_ISO]) {
+                db.dias[HOY_ISO] = {
+                    fecha: HOY_ISO,
+                    actividades: [],
+                    reflexion: { logro: '', distractor: '', causaIncumplimiento: 'Ninguna', accionCorrectiva: '' }
+                };
+            } else {
+                // Cargar campos de reflexión si ya existen
+                const ref = db.dias[HOY_ISO].reflexion;
+                if (ref) {
+                    document.getElementById('act-logro').value = ref.logro || '';
+                    document.getElementById('act-distractor').value = ref.distractor || '';
+                    document.getElementById('act-causa').value = ref.causaIncumplimiento || 'Ninguna';
+                    document.getElementById('act-correctiva').value = ref.accionCorrectiva || '';
+                }
+            }
+
+            renderTodo();
+        });
+
+        function persist() {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(db));
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`view-${tabId}`).classList.add('active');
+            
+            renderTodo();
+        }
+
+        // CONTROLADORES DEL MÓDULO PLAN & DO
+        function agregarActividad(e) {
+            e.preventDefault();
+            const desc = document.getElementById('act-nombre').value.trim();
+            const cat = document.getElementById('act-categoria').value;
+
+            if(!desc) return;
+
+            const nuevaAct = {
+                id: Date.now() + Math.floor(Math.random() * 1000),
+                actividad: desc,
+                categoria: cat,
+                estado: "no_iniciada" // no_iniciada, en_proceso, realizada
+            };
+
+            db.dias[HOY_ISO].actividades.push(nuevaAct);
+            persist();
+            document.getElementById('act-nombre').value = '';
+            renderTodo();
+        }
+
+        function cambiarEstadoActividad(actId, nuevoEstado) {
+            const index = db.dias[HOY_ISO].actividades.findIndex(a => a.id === actId);
+            if(index !== -1) {
+                db.dias[HOY_ISO].actividades[index].estado = nuevoEstado;
+                persist();
+                renderTodo();
+            }
+        }
+
+        function guardarDiaActual() {
+            const logro = document.getElementById('act-logro').value.trim();
+            const distractor = document.getElementById('act-distractor').value.trim();
+            const causa = document.getElementById('act-causa').value;
+            const correctiva = document.getElementById('act-correctiva').value.trim();
+
+            db.dias[HOY_ISO].reflexion = {
+                logro: logro,
+                distractor: distractor,
+                causaIncumplimiento: causa,
+                accionCorrectiva: correctiva
+            };
+
+            persist();
+            alert("✓ Registro diario guardado y archivado correctamente.");
+            renderTodo();
+        }
+
+        // CÁLCULOS Y RENDERIZADO CENTRALIZADO
+        function renderTodo() {
+            const diaHoy = db.dias[HOY_ISO];
+            
+            // 1. Render Do List
+            const listaDiv = document.getElementById('lista-actividades');
+            listaDiv.innerHTML = '';
+
+            if(diaHoy.actividades.length === 0) {
+                listaDiv.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem; text-align:center; padding:15px;">No hay actividades planificadas para hoy.</p>`;
+            } else {
+                diaHoy.actividades.forEach(act => {
+                    const item = document.createElement('div');
+                    item.className = 'activity-item';
+                    item.innerHTML = `
+                        <div class="activity-info">
+                            <span style="font-weight:500;">${act.actividad}</span>
+                            <span class="badge bg-${act.categoria.toLowerCase()}">${act.categoria}</span>
+                        </div>
+                        <div class="status-actions">
+                            <button class="status-btn ${act.estado==='no_iniciada'?'active':''}" data-status="no_iniciada" onclick="cambiarEstadoActividad(${act.id}, 'no_iniciada')">Pendiente</button>
+                            <button class="status-btn ${act.estado==='en_proceso'?'active':''}" data-status="en_proceso" onclick="cambiarEstadoActividad(${act.id}, 'en_proceso')">WIP</button>
+                            <button class="status-btn ${act.estado==='realizada'?'active':''}" data-status="realizada" onclick="cambiarEstadoActividad(${act.id}, 'realizada')">Hecho</button>
+                        </div>
+                    `;
+                    listaDiv.appendChild(item);
+                });
+            }
+
+            // 2. Procesar Métricas Hoy (CHECK)
+            const total = diaHoy.actividades.length;
+            const hechas = diaHoy.actividades.filter(a => a.estado === 'realizada').length;
+            const wip = diaHoy.actividades.filter(a => a.estado === 'en_proceso').length;
+            const noHechas = total - hechas - wip;
+            const pct = total > 0 ? Math.round((hechas / total) * 100) : 0;
+
+            document.getElementById('m-plan').innerText = total;
+            document.getElementById('m-do').innerText = hechas;
+            document.getElementById('m-wip').innerText = wip;
+            document.getElementById('m-pct').innerText = `${pct}%`;
+
+            // Configurar Semáforo Visual del Día
+            const banner = document.getElementById('semaforo-banner');
+            if(total === 0) {
+                banner.style.backgroundColor = varColor('--color-gris', 0.2);
+                banner.style.color = 'var(--text-muted)';
+                banner.innerHTML = `<span>⚪</span> <span>Sin actividades registradas hoy</span>`;
+            } else if(pct >= 80) {
+                banner.style.backgroundColor = varColor('--color-verde', 0.2);
+                banner.style.color = 'var(--color-verde)';
+                banner.innerHTML = `<span>🟢 Semáforo Verde (${pct}%)</span> <span>Excelente nivel de cumplimiento.</span>`;
+            } else if(pct >= 60) {
+                banner.style.backgroundColor = varColor('--color-amarillo', 0.2);
+                banner.style.color = 'var(--color-amarillo)';
+                banner.innerHTML = `<span>🟡 Semáforo Amarillo (${pct}%)</span> <span>Atención con las desviaciones del plan.</span>`;
+            } else {
+                banner.style.backgroundColor = varColor('--color-rojo', 0.2);
+                banner.style.color = 'var(--color-rojo)';
+                banner.innerHTML = `<span>🔴 Semáforo Rojo (${pct}%)</span> <span>Alta desviación. Requiere contramedida inmediata.</span>`;
+            }
+
+            // 3. Render Dashboard Analítico e Histórico (7 y 30 días)
+            calcularPanelesGlobales();
+        }
+
+        function varColor(varName, opacity) {
+            const el = document.documentElement;
+            const color = getComputedStyle(el).getPropertyValue(varName).trim();
+            if (color.startsWith('#')) {
+                const r = parseInt(color.slice(1, 3), 16);
+                const g = parseInt(color.slice(3, 5), 16);
+                const b = parseInt(color.slice(5, 7), 16);
+                return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+            }
+            return color;
+        }
+
+        function calcularPanelesGlobales() {
+            const listaDias = Object.values(db.dias).sort((a,b) => b.fecha.localeCompare(a.fecha));
+            
+            // Métricas Semanales (Últimos 7 registros)
+            const dias7 = listaDias.slice(0, 7);
+            let semTotalAct = 0, semHechasAct = 0;
+            dias7.forEach(d => {
+                semTotalAct += d.actividades.length;
+                semHechasAct += d.actividades.filter(a => a.estado === 'realizada').length;
+            });
+            const pctSem = semTotalAct > 0 ? Math.round((semHechasAct / semTotalAct) * 100) : 0;
+            document.getElementById('sem-pct').innerText = `${pctSem}%`;
+            document.getElementById('sem-ok').innerText = semHechasAct;
+            document.getElementById('sem-fail').innerText = semTotalAct - semHechasAct;
+
+            // Métricas Mensuales (Últimos 30 registros)
+            const dias30 = listaDias.slice(0, 30);
+            let mesTotalAct = 0, mesHechasAct = 0;
+            let estTotal = 0, estHechas = 0;
+            let conteoCausas = {};
+            let conteoDistractores = 0;
+
+            dias30.forEach(d => {
+                d.actividades.forEach(a => {
+                    mesTotalAct++;
+                    if(a.estado === 'realizada') mesHechasAct++;
+                    
+                    if(a.categoria === 'Estrategica') {
+                        estTotal++;
+                        if(a.estado === 'realizada') estHechas++;
+                    }
+                });
+
+                if(d.reflexion && d.reflexion.causaIncumplimiento && d.reflexion.causaIncumplimiento !== 'Ninguna') {
+                    conteoCausas[d.reflexion.causaIncumplimiento] = (conteoCausas[d.reflexion.causaIncumplimiento] || 0) + 1;
+                }
+            });
+
+            const pctMes = mesTotalAct > 0 ? Math.round((mesHechasAct / mesTotalAct) * 100) : 0;
+            const pctEst = estTotal > 0 ? Math.round((estHechas / estTotal) * 100) : 0;
+            
+            document.getElementById('mes-pct').innerText = `${pctMes}%`;
+            document.getElementById('mes-est').innerText = `${pctEst}%`;
+            
+            let clasificacion = "Mejora";
+            let colorClas = 'var(--color-rojo)';
+            if(pctMes >= 80) { clasificacion = "Excelente"; colorClas = 'var(--color-verde)'; }
+            else if(pctMes >= 60) { clasificacion = "Aceptable"; colorClas = 'var(--color-amarillo)'; }
+            
+            const statusBox = document.getElementById('mes-status');
+            statusBox.innerText = clasificacion;
+            statusBox.style.color = colorClas;
+
+            // Render Gráfico de Pareto Minimalista de Causas
+            const paretoDiv = document.getElementById('pareto-container');
+            paretoDiv.innerHTML = '';
+            Object.keys(conteoCausas).forEach(causa => {
+                const count = conteoCausas[causa];
+                const row = document.createElement('div');
+                row.style.marginBottom = '8px';
+                row.innerHTML = `
+                    <div style="display:flex; justify-content:between; font-size:0.8rem; margin-bottom:2px;">
+                        <span style="flex:1;">${causa}</span>
+                        <span class="mono">${count} veces</span>
+                    </div>
+                    <div class="chart-bar-container">
+                        <div class="chart-bar-fill" style="width:${Math.min(count * 20, 100)}%; background-color:var(--color-amarillo)"></div>
+                    </div>
+                `;
+                paretoDiv.appendChild(row);
+            });
+            if(Object.keys(conteoCausas).length === 0) {
+                paretoDiv.innerHTML = `<p style="color:var(--text-muted); font-size:0.8rem;">Sin desviaciones registradas este mes.</p>`;
+            }
+
+            // 4. COACH AUTOMÁTICO INTELIGENTE (Basado en PDCA / Lean / Pareto)
+            const coachDiv = document.getElementById('coach-container');
+            coachDiv.innerHTML = '';
+            
+            let insights = [];
+            if(pctSem >= 80) {
+                insights.push("🎯 <strong>Disciplina de Ejecución:</strong> Mantienes un excelente apego al LSW semanal. Sigue protegiendo tus horas de arranque.");
+            } else {
+                insights.push("⚠️ <strong>Alerta de Desviación:</strong> Tu cumplimiento semanal está por debajo de la meta global del 80%. Aplica Kaizen sobre el tiempo desperdiciado.");
+            }
+
+            if(pctEst < 70 && estTotal > 0) {
+                insights.push("💡 <strong>Regla del 80/20 (Pareto):</strong> Estás postergando las tareas <em>Estratégicas</em> (${pctEst}% completado). Recuerda que el mantenimiento proactivo es lo que detiene las emergencias crónicas.");
+            }
+
+            // Analizar la causa raíz más repetida
+            let causaTop = Object.entries(conteoCausas).sort((a,b) => b[1] - a[1])[0];
+            if(causaTop) {
+                insights.push(`🚨 <strong>Foco de Desperdicio:</strong> La causa principal de tus tareas caídas es <em>"${causaTop[0]}"</em>. Genera un estándar o bloquea buffers específicos de tiempo para mitigar esta dependencia.`);
+            }
+
+            insights.push("📈 <strong>Mejora Continua:</strong> Al final de cada turno, dedica invariablemente 2 minutos a rellenar el módulo ACT. No dejes días vacíos para asegurar un análisis de datos confiable.");
+
+            insights.forEach(msg => {
+                const p = document.createElement('p');
+                p.className = 'coach-msg';
+                p.innerHTML = msg;
+                coachDiv.appendChild(p);
+            });
+
+            // 5. RENDER LISTADO HISTÓRICO
+            const histDiv = document.getElementById('lista-historial');
+            histDiv.innerHTML = '';
+            
+            listaDias.forEach(d => {
+                const t = d.actividades.length;
+                const h = d.actividades.filter(a => a.estado === 'realizada').length;
+                const p = t > 0 ? Math.round((h / t) * 100) : 0;
+                let colorBorder = 'var(--color-gris)';
+                if(t > 0) colorBorder = p >= 80 ? 'var(--color-verde)' : (p >= 60 ? 'var(--color-amarillo)' : 'var(--color-rojo)');
+
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.style.borderColor = colorBorder;
+                item.innerHTML = `
+                    <div style="display:flex; justify-content:between; align-items:center;">
+                        <span class="mono" style="font-weight:bold; flex:1;">${d.fecha}</span>
+                        <span class="mono" style="font-weight:bold; color:${colorBorder}">${p}% Eficacia</span>
+                    </div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                        Tareas: ${h}/${t} | Causa Raíz: ${d.reflexion?.causaIncumplimiento || 'N/A'}
+                    </div>
+                    ${d.reflexion?.logro ? `<div style="font-size:0.8rem; font-style:italic; margin-top:2px; color:var(--text-main);">⭐ Logro: ${d.reflexion.logro}</div>` : ''}
+                `;
+                // Permitir recuperar datos si se hace clic
+                item.onclick = () => {
+                    if(confirm(`¿Deseas cargar la planeación del día ${d.fecha} en el tablero activo para revisión?`)) {
+                        // Cambiar la fecha de trabajo temporal al día seleccionado para auditarlo
+                        document.getElementById('current-date-lbl').innerText = `Auditoría Día: ${d.fecha}`;
+                        // Forzar que el core use ese día
+                        db.dias[HOY_ISO].actividades = JSON.parse(JSON.stringify(d.actividades));
+                        renderTodo();
+                        switchTab('diario');
+                    }
+                };
+                histDiv.appendChild(item);
+            });
+        }
+
+        // EXPORTACIÓN EXCEL CSV COMPLETAMENTE OFFLINE
+        function exportarCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // UTF-8 BOM para Excel
+            csvContent += "Fecha,Total Actividades,Realizadas,Porcentaje Cumplimiento,Causa Incumplimiento,Principal Logro,Distractor,Accion Correctiva\n";
+
+            Object.values(db.dias).forEach(d => {
+                const total = d.actividades.length;
+                const hechas = d.actividades.filter(a => a.estado === 'realizada').length;
+                const pct = total > 0 ? Math.round((hechas / total) * 100) : 0;
+                
+                const causa = (d.reflexion?.causaIncumplimiento || "Ninguna").replace(/,/g, " ");
+                const logro = (d.reflexion?.logro || "").replace(/,/g, " ");
+                const distractor = (d.reflexion?.distractor || "").replace(/,/g, " ");
+                const correctiva = (d.reflexion?.accionCorrectiva || "").replace(/,/g, " ");
+
+                csvContent += `${d.fecha},${total},${hechas},${pct}%,${causa},${logro},${distractor},${correctiva}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Historial_PDCA_Mantenimiento_2026.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
